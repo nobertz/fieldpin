@@ -499,6 +499,99 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
   border-radius:10px;padding:11px;font-size:13.5px;font-weight:700;
 }
 
+/* ---------- Contact card (view/edit) ---------- */
+.cc-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+  padding:6px 16px 12px;flex:0 0 auto;
+}
+.cc-title-row{display:flex;align-items:center;gap:8px;flex:1;min-width:0;}
+.cc-name{margin:0;font-size:19px;font-weight:760;letter-spacing:-.02em;line-height:1.3;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cc-head-icons{display:flex;gap:4px;flex:0 0 auto;position:relative;}
+.cc-pencil{
+  flex:0 0 auto;width:30px;height:30px;border-radius:9px;border:none;background:var(--surface-2);
+  display:flex;align-items:center;justify-content:center;color:var(--muted);
+}
+.cc-pencil svg{width:15px;height:15px;}
+.cc-pencil.sm{width:26px;height:26px;border-radius:8px;flex:0 0 auto;}
+.cc-pencil.sm svg{width:13px;height:13px;}
+.cc-pencil:active{background:var(--hair-strong);}
+
+.cc-menu{
+  position:absolute;top:38px;right:0;z-index:5;
+  background:var(--surface);border:1px solid var(--hair-strong);border-radius:12px;
+  box-shadow:var(--shadow);min-width:176px;padding:6px;
+  opacity:0;pointer-events:none;transform:translateY(-6px);
+  transition:opacity .14s ease, transform .14s ease;
+}
+.cc-menu.show{opacity:1;pointer-events:auto;transform:none;}
+.cc-menu-item{
+  width:100%;text-align:left;padding:11px 12px;border-radius:8px;border:none;background:none;
+  font-size:14px;font-weight:600;color:var(--ink);
+}
+.cc-menu-item:active{background:var(--surface-2);}
+.cc-menu-item.danger{color:var(--danger);}
+
+.cc-body{overflow-y:auto;padding:2px 16px calc(20px + var(--safe-b));-webkit-overflow-scrolling:touch;}
+.cc-section{margin-bottom:20px;}
+.cc-label{display:block;font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.cc-label.inline{display:inline;margin-bottom:0;}
+
+.cc-status-row{display:flex;gap:10px;flex-wrap:wrap;}
+.cc-dot{width:34px;height:34px;border-radius:50%;border:2px solid transparent;box-shadow:0 0 0 1px var(--hair-strong) inset;}
+.cc-dot.sel{border-color:var(--ink);box-shadow:0 0 0 2px var(--surface) inset, 0 0 0 4px var(--ink);}
+.cc-status-current{margin-top:9px;font-size:13.5px;font-weight:650;color:var(--ink-soft);}
+
+.cc-check-row{display:flex;align-items:center;gap:10px;}
+.cc-check-tap{display:flex;align-items:center;gap:11px;flex:1;min-width:0;}
+.cc-check-tap input{width:21px;height:21px;accent-color:var(--ink);flex:0 0 auto;pointer-events:none;}
+.cc-check-tap span{font-size:14.5px;font-weight:600;color:var(--ink);}
+.cc-check-tap span b{font-weight:760;}
+
+.cc-row-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.cc-value{font-size:14.5px;font-weight:650;color:var(--ink);}
+
+.cc-addlink{
+  background:none;border:1px dashed var(--hair-strong);border-radius:10px;
+  padding:11px 13px;font-size:13.5px;font-weight:650;color:var(--muted);width:100%;text-align:left;
+}
+.cc-addlink:active{background:var(--surface-2);}
+.cc-link{background:none;border:none;color:var(--ink);font-size:13px;font-weight:650;text-decoration:underline;padding:8px 2px;flex:0 0 auto;}
+.cc-clear-link{background:none;border:none;color:var(--muted);font-size:12.5px;font-weight:650;text-decoration:underline;padding:8px 2px;margin-top:2px;}
+.cc-clear-link.danger{color:var(--danger);}
+
+.cc-edit-row{display:flex;align-items:center;gap:8px;}
+.cc-input{
+  flex:1;min-width:0;background:var(--surface-2);border:1px solid var(--hair-strong);
+  border-radius:10px;padding:11px 12px;font-size:15px;outline:none;
+}
+.cc-input:focus{border-color:var(--ink);}
+.cc-textarea{
+  width:100%;background:var(--surface-2);border:1px solid var(--hair-strong);
+  border-radius:11px;padding:12px 13px;font-size:15px;line-height:1.45;
+  outline:none;resize:vertical;min-height:90px;margin-bottom:9px;
+}
+.cc-textarea:focus{border-color:var(--ink);}
+.cc-iconbtn{flex:0 0 auto;width:36px;height:36px;border-radius:10px;border:none;display:flex;align-items:center;justify-content:center;}
+.cc-iconbtn svg{width:16px;height:16px;}
+.cc-iconbtn.save{background:var(--ink);color:#fff;}
+.cc-iconbtn.cancel{background:var(--surface-2);color:var(--muted);border:1px solid var(--hair-strong);}
+.cc-edit-row-actions{display:flex;gap:9px;margin-bottom:6px;}
+.cc-edit-row-actions .btn{padding:11px;font-size:13.5px;}
+
+.cc-note-entry{background:var(--surface-2);border:1px solid var(--hair);border-radius:12px;padding:12px 13px;margin-bottom:10px;}
+.cc-note-text{font-size:14px;line-height:1.5;color:var(--ink-soft);white-space:pre-wrap;}
+.cc-note-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;}
+.cc-note-date{font-size:11.5px;font-weight:650;color:var(--muted);}
+.cc-empty-note{font-size:13.5px;color:var(--muted);padding:10px 2px;}
+.cc-notes-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:4px;}
+.cc-notes-actions .cc-addlink{width:auto;flex:1;}
+
+.cc-back{background:none;border:none;color:var(--muted);font-size:13.5px;font-weight:650;padding:8px 2px;margin-bottom:6px;}
+.cc-history-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;}
+.cc-history-head .cc-label{margin-bottom:0;}
+.cc-history-list{display:flex;flex-direction:column;}
+
 /* ---------- Toast ---------- */
 #toast{
   position:fixed;left:50%;bottom:calc(var(--nav-h) + var(--safe-b) + 18px);
@@ -659,6 +752,25 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
     </div>
   </div>
   <div class="sheet-foot" id="sheetFoot"></div>
+</div>
+
+<!-- Contact card (view/edit existing contact) -->
+<div class="scrim" id="cardScrim"></div>
+<div class="sheet" id="cardSheet">
+  <div class="sheet-grab"></div>
+  <div class="cc-head">
+    <div class="cc-title-row" id="cc_titleArea"></div>
+    <div class="cc-head-icons">
+      <button class="cc-pencil" data-cc-act="menutoggle" aria-label="More options">
+        <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg>
+      </button>
+      <button class="cc-pencil" id="cardClose" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <div class="cc-menu" id="cc_menu"></div>
+    </div>
+  </div>
+  <div class="cc-body" id="cc_body"></div>
 </div>
 
 <!-- Settings sheet -->
@@ -5920,6 +6032,26 @@ db.version(1).stores({
   contacts: '++id, businessName, color, hubspotEntered, followUpDate, createdAt, latitude, longitude',
   meta: 'key'
 });
+db.version(2).stores({
+  contacts: '++id, businessName, color, hubspotEntered, followUpDate, createdAt, latitude, longitude',
+  notesLog: '++id, contactId, date, createdAt',
+  meta: 'key'
+}).upgrade(async tx => {
+  // Migrate each contact's old single notes/visitDate into its first dated history entry
+  const allContacts = await tx.table('contacts').toArray();
+  const entries = [];
+  for(const c of allContacts){
+    if(c.notes && String(c.notes).trim()){
+      entries.push({
+        contactId: c.id,
+        text: c.notes,
+        date: c.visitDate || (c.createdAt ? new Date(c.createdAt).toISOString() : new Date().toISOString()),
+        createdAt: c.createdAt || Date.now()
+      });
+    }
+  }
+  if(entries.length) await tx.table('notesLog').bulkAdd(entries);
+});
 
 const DEFAULT_COLORS = [
   {key:'green',  label:'Interested',        hex:'#1E9E4A'},
@@ -5934,6 +6066,7 @@ const DEFAULT_ZOOM = 13;
 
 let settings = { theme:'light', colors: DEFAULT_COLORS.map(c=>({...c})) };
 let contacts = [];                 // in-memory cache of all contacts
+let allNotes = [];                 // in-memory cache of every note-history entry, all contacts
 const markers = new Map();         // id -> {marker, infoWindow}
 let activeFilters = new Set();      // empty = ALL
 let hsFilters = new Set();          // empty = ALL (HubSpot tab color filter)
@@ -5941,8 +6074,13 @@ let currentTab = 'map';
 let place = { active:false, id:null, pickFirst:false };
 let moving = { active:false, id:null };
 let pendingLL = null;    // location captured in drop-pin-first mode
-let editId = null;
 let formColor = null;
+
+// Contact card (view/edit existing contact)
+let cardContactId = null;     // which contact is open in the card
+let cardEditingField = null;  // which single field is mid-edit: 'name' | 'dmName' | 'follow' | 'newnote' | 'note:<id>' | null
+let cardView = 'main';        // 'main' | 'history'
+let cardNotes = [];           // this contact's history entries, newest first
 
 let map, userMarker = null;
 let placeClickListener = null, pickFirstClickListener = null;
@@ -5953,6 +6091,10 @@ const $$ = s => Array.from(document.querySelectorAll(s));
 const esc = s => String(s==null?'':s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const colorByKey = k => settings.colors.find(c=>c.key===k) || {key:k,label:k,hex:'#888'};
 const truncate = (s,n) => { s=String(s||''); return s.length>n ? s.slice(0,n-1)+'…' : s; };
+
+const ICON_X = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>`;
+const ICON_CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>`;
+const ICON_PENCIL = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`;
 
 function todayYMD(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`; }
 function isOverdue(c){ return !!c.followUpDate && c.followUpDate < todayYMD(); }
@@ -6044,19 +6186,19 @@ function closeAllInfoWindows(){
   markers.forEach(({iw})=>iw.close());
 }
 function popupHTML(c){
-  const col = colorByKey(c.color), od = isOverdue(c);
+  const col = colorByKey(c.color), od = isOverdue(c), latest = latestNoteFor(c.id);
   return `<div class="fp-pop">
     <div class="fp-pop-name">${esc(c.businessName||'Untitled contact')}</div>
     <div class="fp-pop-status"><span class="dot" style="background:${col.hex}"></span>${esc(col.label)}</div>
-    ${c.notes?`<div class="fp-pop-note">${esc(c.notes)}</div>`:''}
+    ${latest?`<div class="fp-pop-note">${esc(latest.text)}</div>`:''}
     <div class="fp-pop-meta">
-      <div><span class="k">Visit</span><span class="v">${c.visitDate?esc(fmtDateTime(c.visitDate)):'—'}</span></div>
+      <div><span class="k">Last visit</span><span class="v">${latest?esc(fmtDateTime(latest.date)):'—'}</span></div>
       <div><span class="k">Follow-up</span><span class="v">${c.followUpDate?esc(fmtDate(c.followUpDate)):'—'}${od?' <span class="od">⚠ Overdue</span>':''}</span></div>
       <div><span class="k">HubSpot</span><span class="v">${c.hubspotEntered?'Entered':'Not entered'}</span></div>
     </div>
     <div class="fp-pop-actions">
       <button class="fp-pop-move" onclick="FP.move(${c.id})">Move pin</button>
-      <button class="fp-pop-edit" onclick="FP.edit(${c.id})">Edit contact</button>
+      <button class="fp-pop-edit" onclick="FP.edit(${c.id})">View contact</button>
     </div>
   </div>`;
 }
@@ -6232,9 +6374,9 @@ function renderRecent(){
 }
 
 function cardHTML(c,opts){
-  const col=colorByKey(c.color), od=isOverdue(c), pinned=isPinned(c);
+  const col=colorByKey(c.color), od=isOverdue(c), pinned=isPinned(c), latest=latestNoteFor(c.id);
   const metaBits=[];
-  if(c.visitDate) metaBits.push(`<span class="meta-item">Visit <b>${esc(fmtDateTime(c.visitDate))}</b></span>`);
+  if(latest) metaBits.push(`<span class="meta-item">Last visit <b>${esc(fmtDateTime(latest.date))}</b></span>`);
   if(c.followUpDate) metaBits.push(`<span class="meta-item">Follow-up <b>${esc(fmtDate(c.followUpDate))}</b></span>`);
   metaBits.push(`<span class="meta-item">${pinned?'📍 Pinned':'Unpinned'}</span>`);
   if(opts.recent) metaBits.push(`<span class="meta-item">${c.hubspotEntered?'In HubSpot':'Not in HubSpot'}</span>`);
@@ -6244,14 +6386,14 @@ function cardHTML(c,opts){
     foot+= pinned
       ? `<button class="btn btn-secondary" data-act="view" data-id="${c.id}">Show on map</button>`
       : `<button class="btn btn-primary" data-act="addmap" data-id="${c.id}">Add to map</button>`;
-    foot+=`<button class="btn btn-secondary" data-act="edit" data-id="${c.id}">Edit</button></div>`;
+    foot+=`<button class="btn btn-secondary" data-act="edit" data-id="${c.id}">View</button></div>`;
   }
   return `<div class="card${od?' overdue':''}" data-id="${c.id}">
     <div class="card-top">
       ${od?'<div style="margin-bottom:8px"><span class="od-tag">⚠ Overdue</span></div>':''}
       <div class="card-title"><span class="dot" style="background:${col.hex}"></span>${esc(c.businessName||'Untitled contact')}</div>
       <div class="card-status">${esc(col.label)}</div>
-      ${c.notes?`<p class="card-note">${esc(truncate(c.notes,150))}</p>`:''}
+      ${latest?`<p class="card-note">${esc(truncate(latest.text,150))}</p>`:''}
       <div class="card-meta">${metaBits.join('')}</div>
     </div>${foot}</div>`;
 }
@@ -6261,7 +6403,8 @@ function renderMasterList(){
   const term=$('#searchInput').value.trim().toLowerCase();
   const matched = contacts.filter(c=>{
     if(!term) return true;
-    return (c.businessName||'').toLowerCase().includes(term) || (c.notes||'').toLowerCase().includes(term);
+    if((c.businessName||'').toLowerCase().includes(term)) return true;
+    return allNotes.some(n=>n.contactId===c.id && (n.text||'').toLowerCase().includes(term));
   }).sort((a,b)=>(a.businessName||'').localeCompare(b.businessName||''));
   $('#drawerCount').textContent = term
     ? `${matched.length} match${matched.length===1?'':'es'} for “${term}”`
@@ -6281,7 +6424,7 @@ function renderMasterList(){
   }).join('');
 }
 
-/* ---------------- Contact form sheet ---------------- */
+/* ---------------- Contact form sheet (new contact only) ---------------- */
 function renderSwatches(){
   $('#f_swatches').innerHTML = settings.colors.map(c=>`
     <button type="button" class="swatch${formColor===c.key?' sel':''}" data-key="${c.key}">
@@ -6289,28 +6432,17 @@ function renderSwatches(){
       <span class="sw-label">${esc(c.label)}</span>
     </button>`).join('');
 }
-function openSheet(c, withPin){
-  editId = c ? c.id : null;
-  formColor = c ? c.color : null;
-  $('#sheetTitle').textContent = c ? 'Edit contact' : 'New note';
-  $('#f_name').value = c ? (c.businessName||'') : '';
-  $('#f_notes').value = c ? (c.notes||'') : '';
-  $('#f_follow').value = c ? (c.followUpDate||'') : '';
-  $('#f_hub').checked = c ? !!c.hubspotEntered : false;
-  $('#f_visit').value = c ? (c.visitDate?toLocalInput(new Date(c.visitDate)):'') : toLocalInput(new Date());
+function openSheet(withPin){
+  formColor = null;
+  $('#sheetTitle').textContent = 'New note';
+  $('#f_name').value = '';
+  $('#f_notes').value = '';
+  $('#f_follow').value = '';
+  $('#f_hub').checked = false;
+  $('#f_visit').value = toLocalInput(new Date());
   renderSwatches();
-  // footer actions depend on mode
   const foot=$('#sheetFoot');
-  if(c){
-    const pinned=isPinned(c);
-    foot.innerHTML = `
-      <button class="btn btn-primary" data-form="save">Save changes</button>
-      ${pinned?'':'<button class="btn btn-secondary" data-form="addmap">Add to map</button>'}
-      <div class="btn-row">
-        <button class="btn btn-danger" data-form="delete">Delete</button>
-        <button class="btn btn-ghost" data-form="cancel">Cancel</button>
-      </div>`;
-  }else if(withPin && pendingLL){
+  if(withPin && pendingLL){
     foot.innerHTML = `
       <div class="pin-preview">📍 Pin location ready</div>
       <button class="btn btn-primary" data-form="pinhere">Save &amp; place pin here</button>
@@ -6323,7 +6455,7 @@ function openSheet(c, withPin){
       <button class="btn btn-ghost" data-form="cancel">Cancel</button>`;
   }
   showSheet('#sheet');
-  if(!c) setTimeout(()=>$('#f_name').focus(),300);
+  setTimeout(()=>$('#f_name').focus(),300);
 }
 function gatherForm(){
   if(!formColor){ toast('Pick a status color first'); return null; }
@@ -6337,38 +6469,272 @@ function gatherForm(){
     hubspotEntered: $('#f_hub').checked ? 1 : 0
   };
 }
+async function saveNewContact(data){
+  const noteText = (data.notes||'').trim();
+  const visitDate = data.visitDate || new Date().toISOString();
+  delete data.notes; delete data.visitDate;
+  const id = await db.contacts.add(data);
+  if(noteText){
+    await db.notesLog.add({contactId:id, text:noteText, date:visitDate, createdAt:data.createdAt||Date.now()});
+  }
+  await loadAllNotes();
+  return id;
+}
 async function formAction(act){
   if(act==='cancel'){ pendingLL=null; hideSheet('#sheet'); return; }
-  if(act==='delete'){
-    if(!confirm('Delete this contact? This removes the note and its pin permanently.')) return;
-    await db.contacts.delete(editId);
-    hideSheet('#sheet'); await refresh(); toast('Deleted'); return;
-  }
   const data=gatherForm(); if(!data) return;
 
-  if(editId){
-    await db.contacts.update(editId, data);
-    const idToFocus=editId;
-    hideSheet('#sheet'); await refresh();
-    if(act==='addmap'){ enterPlaceMode(idToFocus); }
-    else toast('Saved');
-    return;
-  }
-  // new note — drop-pin-first mode
   if(act==='pinhere' && pendingLL){
     data.latitude=pendingLL[0]; data.longitude=pendingLL[1]; data.createdAt=Date.now();
-    const id=await db.contacts.add(data);
+    const id=await saveNewContact(data);
     pendingLL=null;
     hideSheet('#sheet'); await refresh(); toast('Pinned!');
     focusContact(id); return;
   }
-  // standard new note
   data.latitude=null; data.longitude=null; data.createdAt=Date.now();
-  const id = await db.contacts.add(data);
+  const id = await saveNewContact(data);
   pendingLL=null;
   hideSheet('#sheet'); await refresh();
   if(act==='pinnow'){ enterPlaceMode(id); }
   else { toast('Saved — find it under Recent notes'); }
+}
+
+/* ---------------- Contact card (view/edit existing contact) ---------------- */
+function openContactCard(id){
+  const c = contacts.find(x=>x.id===id); if(!c) return;
+  cardContactId = id; cardEditingField = null; cardView = 'main';
+  cardNotes = getNotesFor(id);
+  renderCard();
+  showSheet('#cardSheet');
+}
+function closeCard(){
+  hideSheet('#cardSheet');
+  cardContactId = null; cardEditingField = null; cardView = 'main'; cardNotes = [];
+}
+async function cardSave(patch){
+  await db.contacts.update(cardContactId, patch);
+  const c = contacts.find(x=>x.id===cardContactId);
+  if(c) Object.assign(c, patch);
+  renderMarkers(); updateBadges();
+  if(currentTab==='recent') renderRecent();
+  if(currentTab==='hubspot') renderHubspot();
+  if($('#drawer').classList.contains('show')) renderMasterList();
+}
+async function refreshNotesGlobal(){
+  await loadAllNotes();
+  cardNotes = getNotesFor(cardContactId);
+  renderMarkers(); updateBadges();
+  if(currentTab==='recent') renderRecent();
+  if(currentTab==='hubspot') renderHubspot();
+  if($('#drawer').classList.contains('show')) renderMasterList();
+}
+async function ccAddNote(text, dateISO){
+  await db.notesLog.add({contactId:cardContactId, text, date:dateISO, createdAt:Date.now()});
+  await refreshNotesGlobal();
+  cardEditingField=null; renderCard();
+  toast('Note added');
+}
+async function ccSaveNoteEdit(entryId, text, dateISO){
+  await db.notesLog.update(entryId, {text, date:dateISO});
+  await refreshNotesGlobal();
+  cardEditingField=null; renderCard();
+  toast('Note updated');
+}
+async function ccDeleteNoteEntry(entryId){
+  await db.notesLog.delete(entryId);
+  await refreshNotesGlobal();
+  cardEditingField=null; renderCard();
+  toast('Note deleted');
+}
+async function ccSaveEdit(){
+  const f = cardEditingField;
+  if(f==='name'){
+    const v=$('#cc_editText').value.trim();
+    if(!v){ toast("Name can't be empty"); return; }
+    await cardSave({businessName:v}); cardEditingField=null; renderCard();
+  } else if(f==='dmName'){
+    const v=$('#cc_editText').value.trim();
+    if(!v){ toast('Enter a name, or tap ✕ to cancel'); return; }
+    await cardSave({decisionMaker:v}); cardEditingField=null; renderCard();
+  } else if(f==='follow'){
+    const v=$('#cc_editDate').value;
+    if(!v){ toast('Pick a date, or tap ✕ to cancel'); return; }
+    await cardSave({followUpDate:v}); cardEditingField=null; renderCard();
+  } else if(f==='newnote'){
+    const text=$('#cc_editText').value.trim();
+    const dt=$('#cc_editDate').value;
+    if(!text){ toast('Write something first'); return; }
+    const iso = dt? new Date(dt).toISOString() : new Date().toISOString();
+    await ccAddNote(text, iso);
+  } else if(f && f.startsWith('note:')){
+    const entryId=Number(f.split(':')[1]);
+    const text=$('#cc_editText').value.trim();
+    const dt=$('#cc_editDate').value;
+    if(!text){ toast("Note can't be empty"); return; }
+    const iso = dt? new Date(dt).toISOString() : new Date().toISOString();
+    await ccSaveNoteEdit(entryId, text, iso);
+  }
+}
+
+function ccNameViewHTML(c){
+  return `<h2 class="cc-name">${esc(c.businessName||'Untitled contact')}</h2>
+    <button class="cc-pencil" data-cc-act="editname" aria-label="Rename">${ICON_PENCIL}</button>`;
+}
+function ccNameEditHTML(c){
+  return `<div class="cc-edit-row" style="width:100%">
+    <input class="cc-input" id="cc_editText" type="text" value="${esc(c.businessName||'')}" placeholder="Business name">
+    <button class="cc-iconbtn save" data-cc-act="save" aria-label="Save">${ICON_CHECK}</button>
+    <button class="cc-iconbtn cancel" data-cc-act="canceledit" aria-label="Cancel">${ICON_X}</button>
+  </div>`;
+}
+function ccStatusHTML(c){
+  return `<div class="cc-section">
+    <span class="cc-label">Status</span>
+    <div class="cc-status-row">
+      ${settings.colors.map(sc=>`<button class="cc-dot${sc.key===c.color?' sel':''}" data-cc-act="setcolor" data-color="${sc.key}" style="background:${sc.hex}" aria-label="${esc(sc.label)}"></button>`).join('')}
+    </div>
+    <div class="cc-status-current">${esc(colorByKey(c.color).label)}</div>
+  </div>`;
+}
+function ccNoteEntryHTML(n){
+  if(cardEditingField === 'note:'+n.id){
+    return `<div class="cc-note-edit">
+      <textarea class="cc-textarea" id="cc_editText" placeholder="What happened, who you talked to, next step…">${esc(n.text)}</textarea>
+      <input class="cc-input" id="cc_editDate" type="datetime-local" value="${toLocalInput(new Date(n.date))}" style="margin-bottom:9px;width:100%;">
+      <div class="cc-edit-row-actions">
+        <button class="btn btn-primary" data-cc-act="save">Save</button>
+        <button class="btn btn-ghost" data-cc-act="canceledit">Cancel</button>
+      </div>
+      <button class="cc-clear-link danger" data-cc-act="deletenote" data-note-id="${n.id}">Delete this note</button>
+    </div>`;
+  }
+  return `<div class="cc-note-entry">
+    <div class="cc-note-text">${esc(n.text)}</div>
+    <div class="cc-note-meta">
+      <span class="cc-note-date">${esc(fmtDateTime(n.date))}</span>
+      <button class="cc-pencil sm" data-cc-act="editnote" data-note-id="${n.id}" aria-label="Edit note">${ICON_PENCIL}</button>
+    </div>
+  </div>`;
+}
+function ccAddNoteFormHTML(){
+  return `<div class="cc-note-edit">
+    <textarea class="cc-textarea" id="cc_editText" placeholder="What happened, who you talked to, next step…"></textarea>
+    <input class="cc-input" id="cc_editDate" type="datetime-local" value="${toLocalInput(new Date())}" style="margin-bottom:9px;width:100%;">
+    <div class="cc-edit-row-actions">
+      <button class="btn btn-primary" data-cc-act="save">Save note</button>
+      <button class="btn btn-ghost" data-cc-act="canceledit">Cancel</button>
+    </div>
+  </div>`;
+}
+function ccMainNotesHTML(c){
+  const latest = cardNotes[0];
+  const showAddForm = cardEditingField==='newnote';
+  return `<div class="cc-section cc-notes-section">
+    <span class="cc-label">Notes</span>
+    ${showAddForm ? ccAddNoteFormHTML() : (latest ? ccNoteEntryHTML(latest) : `<div class="cc-empty-note">No notes yet</div>`)}
+    ${!showAddForm ? `
+      <div class="cc-notes-actions">
+        <button class="cc-addlink" data-cc-act="addnote">+ Add note</button>
+        ${cardNotes.length>1?`<button class="cc-link" data-cc-act="viewhistory">View all (${cardNotes.length})</button>`:''}
+      </div>` : ''}
+  </div>`;
+}
+function ccHistoryBodyHTML(c){
+  const showAddForm = cardEditingField==='newnote';
+  return `
+    <button class="cc-back" data-cc-act="backtomain">← Back</button>
+    <div class="cc-history-head">
+      <span class="cc-label">All notes</span>
+      ${!showAddForm?`<button class="cc-link" data-cc-act="addnote">+ Add note</button>`:''}
+    </div>
+    ${showAddForm?ccAddNoteFormHTML():''}
+    <div class="cc-history-list">
+      ${cardNotes.length? cardNotes.map(ccNoteEntryHTML).join('') : (showAddForm?'':'<div class="cc-empty-note">No notes yet</div>')}
+    </div>
+  `;
+}
+function ccDecisionMakerHTML(c){
+  if(cardEditingField==='dmName'){
+    return `<div class="cc-section">
+      <span class="cc-label">Decision maker</span>
+      <div class="cc-edit-row">
+        <input class="cc-input" id="cc_editText" type="text" placeholder="Their name" value="${esc(c.decisionMaker||'')}">
+        <button class="cc-iconbtn save" data-cc-act="save" aria-label="Save">${ICON_CHECK}</button>
+        <button class="cc-iconbtn cancel" data-cc-act="canceledit" aria-label="Cancel">${ICON_X}</button>
+      </div>
+    </div>`;
+  }
+  return `<div class="cc-section">
+    <div class="cc-check-row">
+      <label class="cc-check-tap" data-cc-act="toggledm">
+        <input type="checkbox" ${c.decisionMaker?'checked':''} tabindex="-1">
+        <span>${c.decisionMaker?`Decision maker: <b>${esc(c.decisionMaker)}</b>`:'Decision maker?'}</span>
+      </label>
+      ${c.decisionMaker?`<button class="cc-pencil sm" data-cc-act="editdm" aria-label="Edit decision maker">${ICON_PENCIL}</button>`:''}
+    </div>
+  </div>`;
+}
+function ccHubspotHTML(c){
+  return `<div class="cc-section">
+    <div class="cc-check-row">
+      <label class="cc-check-tap" data-cc-act="togglehub">
+        <input type="checkbox" ${c.hubspotEntered?'checked':''} tabindex="-1">
+        <span>Entered in HubSpot</span>
+      </label>
+    </div>
+  </div>`;
+}
+function ccFollowUpHTML(c){
+  if(cardEditingField==='follow'){
+    return `<div class="cc-section">
+      <span class="cc-label">Follow-up</span>
+      <div class="cc-edit-row">
+        <input class="cc-input" id="cc_editDate" type="date" value="${c.followUpDate||''}">
+        <button class="cc-iconbtn save" data-cc-act="save" aria-label="Save">${ICON_CHECK}</button>
+        <button class="cc-iconbtn cancel" data-cc-act="canceledit" aria-label="Cancel">${ICON_X}</button>
+      </div>
+      ${c.followUpDate?`<button class="cc-clear-link" data-cc-act="clearfollow">Remove follow-up</button>`:''}
+    </div>`;
+  }
+  if(c.followUpDate){
+    const od=isOverdue(c);
+    return `<div class="cc-section">
+      <div class="cc-row-line">
+        <span class="cc-label inline">Follow-up</span>
+        <span class="cc-value">${esc(fmtDate(c.followUpDate))}</span>
+        ${od?'<span class="od-tag">⚠ Overdue</span>':''}
+        <button class="cc-pencil sm" data-cc-act="editfollow" aria-label="Edit follow-up">${ICON_PENCIL}</button>
+      </div>
+    </div>`;
+  }
+  return `<div class="cc-section"><button class="cc-addlink" data-cc-act="editfollow">+ Add follow-up</button></div>`;
+}
+function renderCard(){
+  const c = contacts.find(x=>x.id===cardContactId);
+  if(!c){ hideSheet('#cardSheet'); return; }
+  const pinned = isPinned(c);
+
+  $('#cc_menu').classList.remove('show');
+  $('#cc_menu').innerHTML = `
+    ${!pinned?`<button class="cc-menu-item" data-cc-act="addmap">Add to map</button>`:''}
+    <button class="cc-menu-item danger" data-cc-act="delete">Delete contact</button>`;
+
+  if(cardView==='history'){
+    $('#cc_titleArea').innerHTML = `<h2 class="cc-name">${esc(c.businessName||'Untitled contact')}</h2>`;
+    $('#cc_body').innerHTML = ccHistoryBodyHTML(c);
+  } else {
+    $('#cc_titleArea').innerHTML = cardEditingField==='name' ? ccNameEditHTML(c) : ccNameViewHTML(c);
+    $('#cc_body').innerHTML = `
+      ${ccStatusHTML(c)}
+      ${ccMainNotesHTML(c)}
+      ${ccDecisionMakerHTML(c)}
+      ${ccHubspotHTML(c)}
+      ${ccFollowUpHTML(c)}
+    `;
+  }
+
+  const focusEl = $('#cc_editText') || $('#cc_editDate');
+  if(focusEl) setTimeout(()=>{ focusEl.focus(); try{ focusEl.select && focusEl.select(); }catch(e){} },60);
 }
 
 /* ---------------- Settings sheet ---------------- */
@@ -6427,19 +6793,24 @@ function download(filename, text, type){
 }
 function csvCell(v){ v=String(v==null?'':v); return /[",\n\r]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }
 function exportCSV(){
-  const headers=['Business Name','Status','Notes','Visit Date','Follow-up Date','Entered in HubSpot','Latitude','Longitude','Created'];
-  const rows=contacts.map(c=>[
-    c.businessName||'', colorByKey(c.color).label, c.notes||'',
-    c.visitDate?new Date(c.visitDate).toLocaleString():'', c.followUpDate||'',
-    c.hubspotEntered?'Yes':'No', c.latitude==null?'':c.latitude, c.longitude==null?'':c.longitude,
-    c.createdAt?new Date(c.createdAt).toLocaleString():''
-  ]);
+  const headers=['Business Name','Status','Decision Maker','Latest Note','Latest Visit','Total Notes','Follow-up Date','Entered in HubSpot','Latitude','Longitude','Created'];
+  const rows=contacts.map(c=>{
+    const entries=getNotesFor(c.id), latest=entries[0];
+    return [
+      c.businessName||'', colorByKey(c.color).label, c.decisionMaker||'',
+      latest?latest.text:'', latest?new Date(latest.date).toLocaleString():'',
+      entries.length,
+      c.followUpDate||'', c.hubspotEntered?'Yes':'No',
+      c.latitude==null?'':c.latitude, c.longitude==null?'':c.longitude,
+      c.createdAt?new Date(c.createdAt).toLocaleString():''
+    ];
+  });
   const csv=[headers,...rows].map(r=>r.map(csvCell).join(',')).join('\r\n');
   download(`fieldpin-${todayYMD()}.csv`, csv, 'text/csv;charset=utf-8;');
   toast('CSV exported');
 }
 function exportJSON(){
-  const payload={ app:'FieldPin', schema:1, exportedAt:new Date().toISOString(), settings, contacts };
+  const payload={ app:'FieldPin', schema:2, exportedAt:new Date().toISOString(), settings, contacts, notes:allNotes };
   download(`fieldpin-backup-${todayYMD()}.json`, JSON.stringify(payload,null,2), 'application/json');
   toast('Backup created');
 }
@@ -6451,16 +6822,29 @@ async function importJSON(file){
   const n=data.contacts.length;
   if(!confirm(`⚠ RESTORE BACKUP\n\nThis will ERASE all ${contacts.length} contact(s) currently on this device and replace them with ${n} from the backup file.\n\nThis cannot be undone. Continue?`)) return;
   try{
-    await db.transaction('rw', db.contacts, db.meta, async ()=>{
+    await db.transaction('rw', db.contacts, db.notesLog, db.meta, async ()=>{
       await db.contacts.clear();
+      await db.notesLog.clear();
       const clean = data.contacts.map(c=>({
-        id:c.id, businessName:c.businessName||'', color:c.color||'green', notes:c.notes||'',
-        visitDate:c.visitDate||null, followUpDate:c.followUpDate||null,
+        id:c.id, businessName:c.businessName||'', color:c.color||'green',
+        decisionMaker:c.decisionMaker||null, followUpDate:c.followUpDate||null,
         hubspotEntered:c.hubspotEntered?1:0,
         latitude:(c.latitude==null?null:c.latitude), longitude:(c.longitude==null?null:c.longitude),
         createdAt:c.createdAt||Date.now()
       }));
       await db.contacts.bulkPut(clean);
+
+      let noteRows=[];
+      if(Array.isArray(data.notes)){
+        noteRows = data.notes.map(n=>({contactId:n.contactId, text:n.text||'', date:n.date||n.createdAt||Date.now(), createdAt:n.createdAt||Date.now()}));
+      } else {
+        // legacy backup (pre-history schema) — migrate each contact's single note field
+        noteRows = data.contacts.filter(c=>c.notes && String(c.notes).trim()).map(c=>({
+          contactId:c.id, text:c.notes, date:c.visitDate||c.createdAt||Date.now(), createdAt:c.createdAt||Date.now()
+        }));
+      }
+      if(noteRows.length) await db.notesLog.bulkAdd(noteRows);
+
       if(data.settings) await db.meta.put({key:'settings', value:data.settings});
     });
     await loadSettings(); applyTheme(); renderSwatches?.();
@@ -6472,13 +6856,16 @@ async function importJSON(file){
 /* ---------------- Sheet / drawer open-close ---------------- */
 function showSheet(sel){ $(sel).classList.add('show'); scrimFor(sel).classList.add('show'); }
 function hideSheet(sel){ $(sel).classList.remove('show'); scrimFor(sel).classList.remove('show'); }
-function scrimFor(sel){ return sel==='#sheet'?$('#sheetScrim'):$('#settingsScrim'); }
-function closeAllSheets(){ hideSheet('#sheet'); hideSheet('#settingsSheet'); }
+function scrimFor(sel){ if(sel==='#sheet') return $('#sheetScrim'); if(sel==='#cardSheet') return $('#cardScrim'); return $('#settingsScrim'); }
+function closeAllSheets(){ hideSheet('#sheet'); closeCard(); hideSheet('#settingsSheet'); }
 function openDrawer(){ $('#drawer').classList.add('show'); $('#drawerScrim').classList.add('show'); renderMasterList(); }
 function closeDrawer(){ $('#drawer').classList.remove('show'); $('#drawerScrim').classList.remove('show'); }
 
 /* ---------------- Refresh pipeline ---------------- */
 async function loadContacts(){ contacts = await db.contacts.toArray(); }
+async function loadAllNotes(){ allNotes = await db.notesLog.toArray(); }
+function getNotesFor(id){ return allNotes.filter(n=>n.contactId===id).sort((a,b)=> new Date(b.date)-new Date(a.date)); }
+function latestNoteFor(id){ const e=getNotesFor(id); return e.length?e[0]:null; }
 function updateBadges(){
   const hs=contacts.filter(c=>!c.hubspotEntered).length;
   const od=contacts.filter(isOverdue).length;
@@ -6488,6 +6875,7 @@ function updateBadges(){
 }
 async function refresh(){
   await loadContacts();
+  await loadAllNotes();
   renderMarkers();
   updateBadges();
   if(currentTab==='hubspot') renderHubspot();
@@ -6532,7 +6920,7 @@ function wire(){
   $$('.nav-btn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
   // fab
   $('#fab').addEventListener('click',toggleFabMenu);
-  $('#fabOptNote').addEventListener('click',()=>{ closeFabMenu(); openSheet(null); });
+  $('#fabOptNote').addEventListener('click',()=>{ closeFabMenu(); openSheet(); });
   $('#fabOptPin').addEventListener('click',()=>{ closeFabMenu(); enterPickFirst(); });
   $('#fabScrim').addEventListener('click',closeFabMenu);
   // top bar
@@ -6585,6 +6973,46 @@ function wire(){
   $('#sheetFoot').addEventListener('click',e=>{
     const b=e.target.closest('[data-form]'); if(!b) return; formAction(b.dataset.form);
   });
+  // contact card (view/edit existing contact)
+  $('#cardScrim').addEventListener('click', closeCard);
+  $('#cardClose').addEventListener('click', closeCard);
+  $('#cardSheet').addEventListener('click', async e=>{
+    if(!e.target.closest('#cc_menu') && !e.target.closest('[data-cc-act="menutoggle"]')){
+      $('#cc_menu').classList.remove('show');
+    }
+    const btn=e.target.closest('[data-cc-act]'); if(!btn) return;
+    const act=btn.dataset.ccAct;
+    const c=contacts.find(x=>x.id===cardContactId); if(!c) return;
+
+    if(act==='menutoggle'){ $('#cc_menu').classList.toggle('show'); }
+    else if(act==='editname'){ cardEditingField='name'; renderCard(); }
+    else if(act==='setcolor'){ await cardSave({color:btn.dataset.color}); renderCard(); }
+    else if(act==='editdm'){ cardEditingField='dmName'; renderCard(); }
+    else if(act==='toggledm'){
+      if(c.decisionMaker){ await cardSave({decisionMaker:null}); renderCard(); toast('Decision maker cleared'); }
+      else { cardEditingField='dmName'; renderCard(); }
+    }
+    else if(act==='togglehub'){ await cardSave({hubspotEntered:c.hubspotEntered?0:1}); renderCard(); }
+    else if(act==='editfollow'){ cardEditingField='follow'; renderCard(); }
+    else if(act==='clearfollow'){ await cardSave({followUpDate:null}); cardEditingField=null; renderCard(); toast('Follow-up removed'); }
+    else if(act==='addnote'){ cardEditingField='newnote'; renderCard(); }
+    else if(act==='editnote'){ cardEditingField='note:'+btn.dataset.noteId; renderCard(); }
+    else if(act==='deletenote'){
+      if(!confirm('Delete this note entry?')) return;
+      await ccDeleteNoteEntry(Number(btn.dataset.noteId));
+    }
+    else if(act==='viewhistory'){ cardView='history'; renderCard(); }
+    else if(act==='backtomain'){ cardView='main'; cardEditingField=null; renderCard(); }
+    else if(act==='save'){ await ccSaveEdit(); }
+    else if(act==='canceledit'){ cardEditingField=null; renderCard(); }
+    else if(act==='addmap'){ const cid=c.id; closeCard(); enterPlaceMode(cid); }
+    else if(act==='delete'){
+      if(!confirm('Delete this contact? This removes all its notes and its pin permanently.')) return;
+      await db.notesLog.where('contactId').equals(c.id).delete();
+      await db.contacts.delete(c.id);
+      closeCard(); await refresh(); toast('Deleted');
+    }
+  });
   // list cards (delegated)
   $('#content').addEventListener('click',async e=>{
     const btn=e.target.closest('[data-act]'); if(!btn) return;
@@ -6600,8 +7028,8 @@ function wire(){
         updateBadges(); renderHubspot();
         toast('Undone');
       });
-    }else if(act==='hsview'){ openSheet(c); }
-    else if(act==='edit'){ openSheet(c); }
+    }else if(act==='hsview'){ openContactCard(id); }
+    else if(act==='edit'){ openContactCard(id); }
     else if(act==='view'){ focusContact(id); }
     else if(act==='addmap'){ enterPlaceMode(id); }
   });
@@ -6629,7 +7057,7 @@ function wire(){
 
   // expose for popup inline handler
   window.FP = {
-    edit:(id)=>{ const c=contacts.find(x=>x.id===id); if(c) openSheet(c); },
+    edit:(id)=> openContactCard(id),
     move:(id)=> enterMoveMode(id)
   };
 }
@@ -6653,7 +7081,7 @@ function onPickFirstClick(e){
   if(!place.pickFirst) return;
   pendingLL=[e.latLng.lat(),e.latLng.lng()];
   exitPickFirst();
-  openSheet(null,true);
+  openSheet(true);
 }
 function exitPickFirst(){
   place.pickFirst=false;
@@ -6667,7 +7095,7 @@ function pickFirstViaGps(){
   navigator.geolocation.getCurrentPosition(p=>{
     pendingLL=[p.coords.latitude,p.coords.longitude];
     exitPickFirst();
-    openSheet(null,true);
+    openSheet(true);
   },()=>toast("Couldn't get location — tap the map"),{enableHighAccuracy:true,timeout:8000});
 }
 function applyColorEffects(){
