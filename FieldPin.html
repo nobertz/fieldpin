@@ -389,9 +389,14 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 .section-label{padding:16px 16px 4px;}
 
 /* ---------- HubSpot quick-check list ---------- */
+#hsFilterBar{
+  display:flex;gap:7px;overflow-x:auto;padding:10px 14px 2px;
+  scrollbar-width:none;-ms-overflow-style:none;
+}
+#hsFilterBar::-webkit-scrollbar{display:none;}
 .hs-list{padding:4px 14px 0;display:flex;flex-direction:column;}
 .hs-row{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  display:flex;align-items:center;gap:10px;
   padding:15px 2px;border-bottom:1px solid var(--hair);
   transition:opacity .26s ease, transform .26s ease, max-height .26s ease, padding .26s ease;
   overflow:hidden;
@@ -400,6 +405,11 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 .hs-row.removing{opacity:0;transform:translateX(40px);max-height:0!important;padding-top:0;padding-bottom:0;border-bottom:none;}
 .hs-name{font-size:15.5px;font-weight:650;color:var(--ink);display:flex;align-items:center;gap:8px;min-width:0;flex:1;}
 .hs-name .od-tag{flex:0 0 auto;}
+.hs-view{
+  flex:0 0 auto;background:var(--surface-2);color:var(--ink);
+  border:1px solid var(--hair-strong);border-radius:9px;
+  padding:7px 12px;font-size:12.5px;font-weight:700;
+}
 .hs-check{width:23px;height:23px;flex:0 0 auto;accent-color:var(--ink);}
 
 /* ---------- Settings ---------- */
@@ -500,6 +510,22 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 }
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
+/* ---------- Undo toast ---------- */
+#undoToast{
+  position:fixed;left:50%;bottom:calc(var(--nav-h) + var(--safe-b) + 18px);
+  transform:translateX(-50%) translateY(14px);
+  background:var(--ink);color:#fff;padding:10px 10px 10px 16px;border-radius:12px;
+  font-size:13.5px;font-weight:600;box-shadow:var(--shadow);z-index:91;
+  display:flex;align-items:center;gap:12px;
+  opacity:0;pointer-events:none;transition:opacity .2s ease, transform .2s ease;
+  max-width:86vw;
+}
+#undoToast.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0);}
+#undoToast button{
+  flex:0 0 auto;background:rgba(255,255,255,.16);color:#fff;border:none;
+  border-radius:8px;padding:8px 12px;font-size:12.5px;font-weight:700;
+}
+
 @media (prefers-reduced-motion: reduce){
   *{animation:none!important;transition:none!important;}
 }
@@ -538,6 +564,7 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 
   <section id="hubspotView" class="view list-view">
     <div class="view-head"><h2>HubSpot check</h2><p id="hubspotSub">Contacts not yet entered in the CRM</p></div>
+    <div id="hsFilterBar"></div>
     <div class="hs-list" id="hubspotList"></div>
   </section>
 
@@ -647,6 +674,10 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 </div>
 
 <div id="toast"></div>
+<div id="undoToast">
+  <span id="undoToastMsg"></span>
+  <button id="undoToastBtn">Undo</button>
+</div>
 
 <input type="file" id="importFile" accept="application/json,.json" hidden>
 
@@ -5905,6 +5936,7 @@ let settings = { theme:'light', colors: DEFAULT_COLORS.map(c=>({...c})) };
 let contacts = [];                 // in-memory cache of all contacts
 const markers = new Map();         // id -> {marker, infoWindow}
 let activeFilters = new Set();      // empty = ALL
+let hsFilters = new Set();          // empty = ALL (HubSpot tab color filter)
 let currentTab = 'map';
 let place = { active:false, id:null, pickFirst:false };
 let moving = { active:false, id:null };
@@ -5935,6 +5967,19 @@ function toast(msg){
   clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2600);
 }
 
+let undoTimer=null, undoAction=null;
+function showUndo(msg, action){
+  undoAction = action;
+  $('#undoToastMsg').textContent = msg;
+  $('#undoToast').classList.add('show');
+  clearTimeout(undoTimer);
+  undoTimer = setTimeout(hideUndo, 5000);
+}
+function hideUndo(){
+  $('#undoToast').classList.remove('show');
+  undoAction = null;
+}
+
 /* ---------------- Settings persistence ---------------- */
 async function loadSettings(){
   try{
@@ -5948,10 +5993,14 @@ async function loadSettings(){
           return s ? {key:d.key, label:s.label||d.label, hex:s.hex||d.hex} : {...d};
         });
       }
+      if(Array.isArray(rec.value.hsFilters)){
+        hsFilters = new Set(rec.value.hsFilters);
+      }
     }
   }catch(e){ console.warn('settings load',e); }
 }
 async function saveSettings(){ try{ await db.meta.put({key:'settings', value: JSON.parse(JSON.stringify(settings))}); }catch(e){console.warn(e);} }
+async function saveHsFilters(){ settings.hsFilters = Array.from(hsFilters); await saveSettings(); }
 
 function applyTheme(){
   document.documentElement.dataset.theme = settings.theme;
@@ -6110,7 +6159,7 @@ function switchTab(tab){
   $('#recentView').classList.toggle('active', tab==='recent');
   $('#mapOverlays').style.display = tab==='map' ? '' : 'none';
   $('#recenterBtn').style.display = tab==='map' ? '' : 'none';
-  if(tab==='hubspot') renderHubspot();
+  if(tab==='hubspot'){ renderHsFilterBar(); renderHubspot(); }
   if(tab==='recent') renderRecent();
   if(tab==='map' && map) google.maps.event.trigger(map,'resize');
 }
@@ -6127,18 +6176,31 @@ function renderFilterBar(){
   });
   bar.innerHTML=html;
 }
+function renderHsFilterBar(){
+  const bar=$('#hsFilterBar'); if(!bar) return;
+  const allActive = hsFilters.size===0;
+  let html=`<button class="chip all${allActive?' active':''}" data-all="1">All colors</button>`;
+  settings.colors.forEach(c=>{
+    const on=hsFilters.has(c.key);
+    html+=`<button class="chip${on?' active':''}" data-color="${c.key}" style="${on?`background:${c.hex}`:''}">
+      <span class="dot" style="background:${on?'#fff':c.hex}"></span>${esc(c.label)}</button>`;
+  });
+  bar.innerHTML=html;
+}
 
 /* ---------------- HubSpot tab ---------------- */
 function hsRowHTML(c){
   const od = isOverdue(c);
-  return `<label class="hs-row" data-id="${c.id}">
+  return `<div class="hs-row" data-id="${c.id}">
     <span class="hs-name">${od?'<span class="od-tag">⚠ Overdue</span>':''}${esc(c.businessName||'Untitled contact')}</span>
+    <button class="hs-view" data-act="hsview" data-id="${c.id}">View</button>
     <input type="checkbox" class="hs-check" data-act="done" data-id="${c.id}">
-  </label>`;
+  </div>`;
 }
 function renderHubspot(){
   const list=$('#hubspotList');
   const items = contacts.filter(c=>!c.hubspotEntered)
+                        .filter(c=>hsFilters.size===0 || hsFilters.has(c.color))
                         .sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
   $('#hubspotSub').textContent = items.length
     ? `${items.length} contact${items.length>1?'s':''} waiting to be entered`
@@ -6496,6 +6558,20 @@ function wire(){
     else{ const k=chip.dataset.color; activeFilters.has(k)?activeFilters.delete(k):activeFilters.add(k); }
     renderFilterBar(); renderMarkers();
   });
+  // hubspot color filter chips
+  $('#hsFilterBar').addEventListener('click',async e=>{
+    const chip=e.target.closest('.chip'); if(!chip) return;
+    if(chip.dataset.all){ hsFilters.clear(); }
+    else{ const k=chip.dataset.color; hsFilters.has(k)?hsFilters.delete(k):hsFilters.add(k); }
+    renderHsFilterBar();
+    await saveHsFilters();
+    renderHubspot();
+  });
+  // undo toast
+  $('#undoToastBtn').addEventListener('click',async ()=>{
+    if(undoAction) await undoAction();
+    hideUndo();
+  });
   // sheet
   $('#sheetScrim').addEventListener('click',()=>hideSheet('#sheet'));
   $('#sheetClose').addEventListener('click',()=>hideSheet('#sheet'));
@@ -6519,8 +6595,13 @@ function wire(){
       const row=btn.closest('.hs-row');
       if(row){ row.style.maxHeight=row.offsetHeight+'px'; requestAnimationFrame(()=>row.classList.add('removing')); }
       setTimeout(()=>{ updateBadges(); renderHubspot(); },300);
-      toast('Marked as entered');
-    }else if(act==='edit'){ openSheet(c); }
+      showUndo('Marked as entered', async ()=>{
+        await db.contacts.update(id,{hubspotEntered:0}); c.hubspotEntered=0;
+        updateBadges(); renderHubspot();
+        toast('Undone');
+      });
+    }else if(act==='hsview'){ openSheet(c); }
+    else if(act==='edit'){ openSheet(c); }
     else if(act==='view'){ focusContact(id); }
     else if(act==='addmap'){ enterPlaceMode(id); }
   });
@@ -6593,7 +6674,7 @@ function applyColorEffects(){
   renderFilterBar(); renderMarkers();
   renderSwatches();
   if(currentTab==='recent') renderRecent();
-  if(currentTab==='hubspot') renderHubspot();
+  if(currentTab==='hubspot'){ renderHsFilterBar(); renderHubspot(); }
   if($('#drawer').classList.contains('show')) renderMasterList();
 }
 
