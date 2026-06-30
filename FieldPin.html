@@ -389,11 +389,11 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 .section-label{padding:16px 16px 4px;}
 
 /* ---------- HubSpot quick-check list ---------- */
-#hsFilterBar{
+#hsFilterBar, #recentFilterBar{
   display:flex;gap:7px;overflow-x:auto;padding:10px 14px 2px;
   scrollbar-width:none;-ms-overflow-style:none;
 }
-#hsFilterBar::-webkit-scrollbar{display:none;}
+#hsFilterBar::-webkit-scrollbar, #recentFilterBar::-webkit-scrollbar{display:none;}
 .hs-list{padding:4px 14px 0;display:flex;flex-direction:column;}
 .hs-row{
   display:flex;align-items:center;gap:10px;
@@ -556,7 +556,6 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
   padding:11px 13px;font-size:13.5px;font-weight:650;color:var(--muted);width:100%;text-align:left;
 }
 .cc-addlink:active{background:var(--surface-2);}
-.cc-link{background:none;border:none;color:var(--ink);font-size:13px;font-weight:650;text-decoration:underline;padding:8px 2px;flex:0 0 auto;}
 .cc-clear-link{background:none;border:none;color:var(--muted);font-size:12.5px;font-weight:650;text-decoration:underline;padding:8px 2px;margin-top:2px;}
 .cc-clear-link.danger{color:var(--danger);}
 
@@ -569,7 +568,7 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 .cc-textarea{
   width:100%;background:var(--surface-2);border:1px solid var(--hair-strong);
   border-radius:11px;padding:12px 13px;font-size:15px;line-height:1.45;
-  outline:none;resize:vertical;min-height:90px;margin-bottom:9px;
+  outline:none;resize:none;overflow:hidden;min-height:90px;margin-bottom:9px;
 }
 .cc-textarea:focus{border-color:var(--ink);}
 .cc-iconbtn{flex:0 0 auto;width:36px;height:36px;border-radius:10px;border:none;display:flex;align-items:center;justify-content:center;}
@@ -579,18 +578,13 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 .cc-edit-row-actions{display:flex;gap:9px;margin-bottom:6px;}
 .cc-edit-row-actions .btn{padding:11px;font-size:13.5px;}
 
+.cc-notes-list{display:flex;flex-direction:column;margin-top:10px;}
 .cc-note-entry{background:var(--surface-2);border:1px solid var(--hair);border-radius:12px;padding:12px 13px;margin-bottom:10px;}
+.cc-note-entry:last-child{margin-bottom:0;}
 .cc-note-text{font-size:14px;line-height:1.5;color:var(--ink-soft);white-space:pre-wrap;}
 .cc-note-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;}
 .cc-note-date{font-size:11.5px;font-weight:650;color:var(--muted);}
 .cc-empty-note{font-size:13.5px;color:var(--muted);padding:10px 2px;}
-.cc-notes-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:4px;}
-.cc-notes-actions .cc-addlink{width:auto;flex:1;}
-
-.cc-back{background:none;border:none;color:var(--muted);font-size:13.5px;font-weight:650;padding:8px 2px;margin-bottom:6px;}
-.cc-history-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;}
-.cc-history-head .cc-label{margin-bottom:0;}
-.cc-history-list{display:flex;flex-direction:column;}
 
 /* ---------- Toast ---------- */
 #toast{
@@ -663,6 +657,7 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 
   <section id="recentView" class="view list-view">
     <div class="view-head"><h2>Recent notes</h2><p id="recentSub">Newest first · overdue follow-ups on top</p></div>
+    <div id="recentFilterBar"></div>
     <div class="cards" id="recentList"></div>
   </section>
 </div>
@@ -723,13 +718,14 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
       <label class="eyebrow">Business name</label>
       <input class="input" id="f_name" type="text" placeholder="e.g. Black Box Engineering" autocomplete="off">
     </div>
-    <div class="field">
-      <label class="eyebrow">Status <span style="color:var(--danger)">*</span></label>
-      <div class="swatches" id="f_swatches"></div>
+    <div class="cc-section">
+      <span class="cc-label">Status <span style="color:var(--danger)">*</span></span>
+      <div class="cc-status-row" id="f_swatches"></div>
+      <div class="cc-status-current" id="f_swatchLabel"></div>
     </div>
     <div class="field">
       <label class="eyebrow">Notes</label>
-      <textarea class="textarea" id="f_notes" placeholder="Who you talked to, what happened, next step…"></textarea>
+      <textarea class="cc-textarea" id="f_notes" placeholder="Who you talked to, what happened, next step…"></textarea>
     </div>
     <div class="row-2">
       <div class="field">
@@ -744,10 +740,12 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
       <label class="eyebrow">Follow-up date</label>
       <input class="input" id="f_follow" type="date">
     </div>
-    <div class="field">
-      <div class="check">
-        <input type="checkbox" id="f_hub">
-        <label for="f_hub">Entered in HubSpot</label>
+    <div class="cc-section">
+      <div class="cc-check-row">
+        <label class="cc-check-tap" id="f_hubRow">
+          <input type="checkbox" id="f_hub" tabindex="-1">
+          <span>Entered in HubSpot</span>
+        </label>
       </div>
     </div>
   </div>
@@ -6070,6 +6068,7 @@ let allNotes = [];                 // in-memory cache of every note-history entr
 const markers = new Map();         // id -> {marker, infoWindow}
 let activeFilters = new Set();      // empty = ALL
 let hsFilters = new Set();          // empty = ALL (HubSpot tab color filter)
+let recentFilters = new Set();      // empty = ALL (Notes tab color filter)
 let currentTab = 'map';
 let place = { active:false, id:null, pickFirst:false };
 let moving = { active:false, id:null };
@@ -6079,7 +6078,6 @@ let formColor = null;
 // Contact card (view/edit existing contact)
 let cardContactId = null;     // which contact is open in the card
 let cardEditingField = null;  // which single field is mid-edit: 'name' | 'dmName' | 'follow' | 'newnote' | 'note:<id>' | null
-let cardView = 'main';        // 'main' | 'history'
 let cardNotes = [];           // this contact's history entries, newest first
 
 let map, userMarker = null;
@@ -6095,6 +6093,12 @@ const truncate = (s,n) => { s=String(s||''); return s.length>n ? s.slice(0,n-1)+
 const ICON_X = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>`;
 const ICON_CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>`;
 const ICON_PENCIL = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`;
+
+function autoGrow(el){
+  if(!el || el.tagName!=='TEXTAREA') return;
+  el.style.height='auto';
+  el.style.height=(el.scrollHeight+2)+'px';
+}
 
 function todayYMD(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`; }
 function isOverdue(c){ return !!c.followUpDate && c.followUpDate < todayYMD(); }
@@ -6138,11 +6142,15 @@ async function loadSettings(){
       if(Array.isArray(rec.value.hsFilters)){
         hsFilters = new Set(rec.value.hsFilters);
       }
+      if(Array.isArray(rec.value.recentFilters)){
+        recentFilters = new Set(rec.value.recentFilters);
+      }
     }
   }catch(e){ console.warn('settings load',e); }
 }
 async function saveSettings(){ try{ await db.meta.put({key:'settings', value: JSON.parse(JSON.stringify(settings))}); }catch(e){console.warn(e);} }
 async function saveHsFilters(){ settings.hsFilters = Array.from(hsFilters); await saveSettings(); }
+async function saveRecentFilters(){ settings.recentFilters = Array.from(recentFilters); await saveSettings(); }
 
 function applyTheme(){
   document.documentElement.dataset.theme = settings.theme;
@@ -6302,7 +6310,7 @@ function switchTab(tab){
   $('#mapOverlays').style.display = tab==='map' ? '' : 'none';
   $('#recenterBtn').style.display = tab==='map' ? '' : 'none';
   if(tab==='hubspot'){ renderHsFilterBar(); renderHubspot(); }
-  if(tab==='recent') renderRecent();
+  if(tab==='recent'){ renderRecentFilterBar(); renderRecent(); }
   if(tab==='map' && map) google.maps.event.trigger(map,'resize');
 }
 
@@ -6354,6 +6362,18 @@ function renderHubspot(){
   list.innerHTML = items.map(hsRowHTML).join('');
 }
 
+function renderRecentFilterBar(){
+  const bar=$('#recentFilterBar'); if(!bar) return;
+  const allActive = recentFilters.size===0;
+  let html=`<button class="chip all${allActive?' active':''}" data-all="1">All colors</button>`;
+  settings.colors.forEach(c=>{
+    const on=recentFilters.has(c.key);
+    html+=`<button class="chip${on?' active':''}" data-color="${c.key}" style="${on?`background:${c.hex}`:''}">
+      <span class="dot" style="background:${on?'#fff':c.hex}"></span>${esc(c.label)}</button>`;
+  });
+  bar.innerHTML=html;
+}
+
 /* ---------------- Recent tab ---------------- */
 function renderRecent(){
   const list=$('#recentList');
@@ -6361,8 +6381,13 @@ function renderRecent(){
     list.innerHTML = `<div class="empty"><div class="big">No notes yet</div><div class="sm">Tap the <b>+</b> button to jot your first contact. You can pin it to the map now or later.</div></div>`;
     return;
   }
-  const overdue = contacts.filter(isOverdue).sort((a,b)=>(a.followUpDate<b.followUpDate?-1:1));
-  const rest = contacts.filter(c=>!isOverdue(c)).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  const filtered = contacts.filter(c=>recentFilters.size===0 || recentFilters.has(c.color));
+  if(!filtered.length){
+    list.innerHTML = `<div class="empty"><div class="big">No matches</div><div class="sm">No contacts match the selected status filter.</div></div>`;
+    return;
+  }
+  const overdue = filtered.filter(isOverdue).sort((a,b)=>(a.followUpDate<b.followUpDate?-1:1));
+  const rest = filtered.filter(c=>!isOverdue(c)).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
   let html='';
   if(overdue.length){
     html += `<div class="section-label"><span class="od-tag">⚠ Overdue follow-ups</span></div>`;
@@ -6427,16 +6452,15 @@ function renderMasterList(){
 /* ---------------- Contact form sheet (new contact only) ---------------- */
 function renderSwatches(){
   $('#f_swatches').innerHTML = settings.colors.map(c=>`
-    <button type="button" class="swatch${formColor===c.key?' sel':''}" data-key="${c.key}">
-      <span class="sw-dot" style="background:${c.hex}"></span>
-      <span class="sw-label">${esc(c.label)}</span>
-    </button>`).join('');
+    <button type="button" class="cc-dot${formColor===c.key?' sel':''}" data-key="${c.key}" style="background:${c.hex}" aria-label="${esc(c.label)}"></button>`).join('');
+  $('#f_swatchLabel').textContent = formColor ? colorByKey(formColor).label : 'Tap a color to set status';
 }
 function openSheet(withPin){
   formColor = null;
   $('#sheetTitle').textContent = 'New note';
   $('#f_name').value = '';
   $('#f_notes').value = '';
+  $('#f_notes').style.height = '';
   $('#f_follow').value = '';
   $('#f_hub').checked = false;
   $('#f_visit').value = toLocalInput(new Date());
@@ -6502,14 +6526,14 @@ async function formAction(act){
 /* ---------------- Contact card (view/edit existing contact) ---------------- */
 function openContactCard(id){
   const c = contacts.find(x=>x.id===id); if(!c) return;
-  cardContactId = id; cardEditingField = null; cardView = 'main';
+  cardContactId = id; cardEditingField = null;
   cardNotes = getNotesFor(id);
   renderCard();
   showSheet('#cardSheet');
 }
 function closeCard(){
   hideSheet('#cardSheet');
-  cardContactId = null; cardEditingField = null; cardView = 'main'; cardNotes = [];
+  cardContactId = null; cardEditingField = null; cardNotes = [];
 }
 async function cardSave(patch){
   await db.contacts.update(cardContactId, patch);
@@ -6627,31 +6651,15 @@ function ccAddNoteFormHTML(){
   </div>`;
 }
 function ccMainNotesHTML(c){
-  const latest = cardNotes[0];
   const showAddForm = cardEditingField==='newnote';
   return `<div class="cc-section cc-notes-section">
-    <span class="cc-label">Notes</span>
-    ${showAddForm ? ccAddNoteFormHTML() : (latest ? ccNoteEntryHTML(latest) : `<div class="cc-empty-note">No notes yet</div>`)}
-    ${!showAddForm ? `
-      <div class="cc-notes-actions">
-        <button class="cc-addlink" data-cc-act="addnote">+ Add note</button>
-        ${cardNotes.length>1?`<button class="cc-link" data-cc-act="viewhistory">View all (${cardNotes.length})</button>`:''}
-      </div>` : ''}
+    <span class="cc-label">Notes${cardNotes.length?` (${cardNotes.length})`:''}</span>
+    ${!showAddForm?`<button class="cc-addlink" data-cc-act="addnote">+ Add note</button>`:''}
+    ${showAddForm ? ccAddNoteFormHTML() : ''}
+    <div class="cc-notes-list">
+      ${cardNotes.length ? cardNotes.map(ccNoteEntryHTML).join('') : (showAddForm?'':'<div class="cc-empty-note">No notes yet</div>')}
+    </div>
   </div>`;
-}
-function ccHistoryBodyHTML(c){
-  const showAddForm = cardEditingField==='newnote';
-  return `
-    <button class="cc-back" data-cc-act="backtomain">← Back</button>
-    <div class="cc-history-head">
-      <span class="cc-label">All notes</span>
-      ${!showAddForm?`<button class="cc-link" data-cc-act="addnote">+ Add note</button>`:''}
-    </div>
-    ${showAddForm?ccAddNoteFormHTML():''}
-    <div class="cc-history-list">
-      ${cardNotes.length? cardNotes.map(ccNoteEntryHTML).join('') : (showAddForm?'':'<div class="cc-empty-note">No notes yet</div>')}
-    </div>
-  `;
 }
 function ccDecisionMakerHTML(c){
   if(cardEditingField==='dmName'){
@@ -6719,22 +6727,17 @@ function renderCard(){
     ${!pinned?`<button class="cc-menu-item" data-cc-act="addmap">Add to map</button>`:''}
     <button class="cc-menu-item danger" data-cc-act="delete">Delete contact</button>`;
 
-  if(cardView==='history'){
-    $('#cc_titleArea').innerHTML = `<h2 class="cc-name">${esc(c.businessName||'Untitled contact')}</h2>`;
-    $('#cc_body').innerHTML = ccHistoryBodyHTML(c);
-  } else {
-    $('#cc_titleArea').innerHTML = cardEditingField==='name' ? ccNameEditHTML(c) : ccNameViewHTML(c);
-    $('#cc_body').innerHTML = `
-      ${ccStatusHTML(c)}
-      ${ccMainNotesHTML(c)}
-      ${ccDecisionMakerHTML(c)}
-      ${ccHubspotHTML(c)}
-      ${ccFollowUpHTML(c)}
-    `;
-  }
+  $('#cc_titleArea').innerHTML = cardEditingField==='name' ? ccNameEditHTML(c) : ccNameViewHTML(c);
+  $('#cc_body').innerHTML = `
+    ${ccStatusHTML(c)}
+    ${ccMainNotesHTML(c)}
+    ${ccDecisionMakerHTML(c)}
+    ${ccHubspotHTML(c)}
+    ${ccFollowUpHTML(c)}
+  `;
 
   const focusEl = $('#cc_editText') || $('#cc_editDate');
-  if(focusEl) setTimeout(()=>{ focusEl.focus(); try{ focusEl.select && focusEl.select(); }catch(e){} },60);
+  if(focusEl) setTimeout(()=>{ focusEl.focus(); try{ focusEl.select && focusEl.select(); }catch(e){} autoGrow(focusEl); },60);
 }
 
 /* ---------------- Settings sheet ---------------- */
@@ -6955,6 +6958,15 @@ function wire(){
     await saveHsFilters();
     renderHubspot();
   });
+  // notes tab color filter chips
+  $('#recentFilterBar').addEventListener('click',async e=>{
+    const chip=e.target.closest('.chip'); if(!chip) return;
+    if(chip.dataset.all){ recentFilters.clear(); }
+    else{ const k=chip.dataset.color; recentFilters.has(k)?recentFilters.delete(k):recentFilters.add(k); }
+    renderRecentFilterBar();
+    await saveRecentFilters();
+    renderRecent();
+  });
   // undo toast
   $('#undoToastBtn').addEventListener('click',async ()=>{
     if(undoAction) await undoAction();
@@ -6966,16 +6978,20 @@ function wire(){
   $('#settingsScrim').addEventListener('click',()=>hideSheet('#settingsSheet'));
   $('#settingsClose').addEventListener('click',()=>hideSheet('#settingsSheet'));
   $('#f_swatches').addEventListener('click',e=>{
-    const sw=e.target.closest('.swatch'); if(!sw) return;
+    const sw=e.target.closest('.cc-dot'); if(!sw) return;
     formColor=sw.dataset.key; renderSwatches();
   });
   $('#f_visitClear').addEventListener('click',()=>{ $('#f_visit').value=''; });
+  $('#f_notes').addEventListener('input',()=> autoGrow($('#f_notes')));
   $('#sheetFoot').addEventListener('click',e=>{
     const b=e.target.closest('[data-form]'); if(!b) return; formAction(b.dataset.form);
   });
   // contact card (view/edit existing contact)
   $('#cardScrim').addEventListener('click', closeCard);
   $('#cardClose').addEventListener('click', closeCard);
+  $('#cardSheet').addEventListener('input', e=>{
+    if(e.target && e.target.id==='cc_editText' && e.target.tagName==='TEXTAREA') autoGrow(e.target);
+  });
   $('#cardSheet').addEventListener('click', async e=>{
     if(!e.target.closest('#cc_menu') && !e.target.closest('[data-cc-act="menutoggle"]')){
       $('#cc_menu').classList.remove('show');
@@ -7001,8 +7017,6 @@ function wire(){
       if(!confirm('Delete this note entry?')) return;
       await ccDeleteNoteEntry(Number(btn.dataset.noteId));
     }
-    else if(act==='viewhistory'){ cardView='history'; renderCard(); }
-    else if(act==='backtomain'){ cardView='main'; cardEditingField=null; renderCard(); }
     else if(act==='save'){ await ccSaveEdit(); }
     else if(act==='canceledit'){ cardEditingField=null; renderCard(); }
     else if(act==='addmap'){ const cid=c.id; closeCard(); enterPlaceMode(cid); }
@@ -7101,7 +7115,7 @@ function pickFirstViaGps(){
 function applyColorEffects(){
   renderFilterBar(); renderMarkers();
   renderSwatches();
-  if(currentTab==='recent') renderRecent();
+  if(currentTab==='recent'){ renderRecentFilterBar(); renderRecent(); }
   if(currentTab==='hubspot'){ renderHsFilterBar(); renderHubspot(); }
   if($('#drawer').classList.contains('show')) renderMasterList();
 }
