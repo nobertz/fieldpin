@@ -388,6 +388,20 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 .card.overdue{border-color:rgba(244,194,13,.6);}
 .section-label{padding:16px 16px 4px;}
 
+/* ---------- HubSpot quick-check list ---------- */
+.hs-list{padding:4px 14px 0;display:flex;flex-direction:column;}
+.hs-row{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:15px 2px;border-bottom:1px solid var(--hair);
+  transition:opacity .26s ease, transform .26s ease, max-height .26s ease, padding .26s ease;
+  overflow:hidden;
+}
+.hs-row:last-child{border-bottom:none;}
+.hs-row.removing{opacity:0;transform:translateX(40px);max-height:0!important;padding-top:0;padding-bottom:0;border-bottom:none;}
+.hs-name{font-size:15.5px;font-weight:650;color:var(--ink);display:flex;align-items:center;gap:8px;min-width:0;flex:1;}
+.hs-name .od-tag{flex:0 0 auto;}
+.hs-check{width:23px;height:23px;flex:0 0 auto;accent-color:var(--ink);}
+
 /* ---------- Settings ---------- */
 .set-group{margin-bottom:22px;}
 .set-group > .eyebrow{margin-bottom:9px;display:block;}
@@ -464,8 +478,14 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 .fp-pop-meta .v{color:var(--ink);font-weight:600;text-align:right;}
 .fp-pop-meta .v .od{color:#9a7a00;font-weight:800;}
 [data-theme="dark"] .fp-pop-meta .v .od{color:var(--amber);}
+.fp-pop-actions{display:flex;gap:8px;margin-top:13px;}
+.fp-pop-move{
+  flex:1;background:var(--surface-2);color:var(--ink);
+  border:1px solid var(--hair-strong);border-radius:10px;
+  padding:11px;font-size:13.5px;font-weight:700;
+}
 .fp-pop-edit{
-  width:100%;margin-top:13px;background:var(--ink);color:#fff;border:none;
+  flex:1;background:var(--ink);color:#fff;border:none;
   border-radius:10px;padding:11px;font-size:13.5px;font-weight:700;
 }
 
@@ -518,7 +538,7 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 
   <section id="hubspotView" class="view list-view">
     <div class="view-head"><h2>HubSpot check</h2><p id="hubspotSub">Contacts not yet entered in the CRM</p></div>
-    <div class="cards" id="hubspotList"></div>
+    <div class="hs-list" id="hubspotList"></div>
   </section>
 
   <section id="recentView" class="view list-view">
@@ -5887,6 +5907,7 @@ const markers = new Map();         // id -> {marker, infoWindow}
 let activeFilters = new Set();      // empty = ALL
 let currentTab = 'map';
 let place = { active:false, id:null, pickFirst:false };
+let moving = { active:false, id:null };
 let pendingLL = null;    // location captured in drop-pin-first mode
 let editId = null;
 let formColor = null;
@@ -5953,14 +5974,14 @@ function makeGMarker(c){
 
   const marker = new google.maps.marker.AdvancedMarkerElement({
     map, position:{lat:c.latitude, lng:c.longitude},
-    content:el, gmpDraggable:true, zIndex:1
+    content:el, gmpDraggable:false, gmpClickable:true, zIndex:1
   });
 
   const iw = new google.maps.InfoWindow({
     content:popupHTML(c), headerDisabled:true, disableAutoPan:false
   });
 
-  marker.addListener('click', ()=>{ closeAllInfoWindows(); iw.open({anchor:marker,map}); });
+  marker.addListener('gmp-click', ()=>{ closeAllInfoWindows(); iw.open({anchor:marker,map}); });
   marker.addListener('dragend', async()=>{
     const p=marker.position;
     const lat=typeof p.lat==='function'?p.lat():p.lat;
@@ -5984,7 +6005,10 @@ function popupHTML(c){
       <div><span class="k">Follow-up</span><span class="v">${c.followUpDate?esc(fmtDate(c.followUpDate)):'—'}${od?' <span class="od">⚠ Overdue</span>':''}</span></div>
       <div><span class="k">HubSpot</span><span class="v">${c.hubspotEntered?'Entered':'Not entered'}</span></div>
     </div>
-    <button class="fp-pop-edit" onclick="FP.edit(${c.id})">Edit contact</button>
+    <div class="fp-pop-actions">
+      <button class="fp-pop-move" onclick="FP.move(${c.id})">Move pin</button>
+      <button class="fp-pop-edit" onclick="FP.edit(${c.id})">Edit contact</button>
+    </div>
   </div>`;
 }
 function visibleByFilter(c){ return activeFilters.size===0 || activeFilters.has(c.color); }
@@ -5996,6 +6020,10 @@ function renderMarkers(){
     const {marker,iw} = makeGMarker(c);
     markers.set(c.id, {marker,iw});
   });
+  if(moving.active){
+    const m = markers.get(moving.id);
+    if(m) m.marker.gmpDraggable = true; else exitMoveMode();
+  }
 }
 
 function focusContact(id){
@@ -6007,6 +6035,31 @@ function focusContact(id){
   if(map.getZoom()<16) map.setZoom(16);
   const m=markers.get(id);
   if(m) setTimeout(()=>m.iw.open({anchor:m.marker,map}),300);
+}
+
+/* ---------------- Move-pin mode ---------------- */
+function enterMoveMode(id){
+  const c = contacts.find(x=>x.id===id); if(!c) return;
+  const m = markers.get(id); if(!m) return;
+  closeAllInfoWindows();
+  moving = {active:true, id};
+  m.marker.gmpDraggable = true;
+  const banner = $('#placeBanner');
+  banner.querySelector('.pb-text').innerHTML = `Drag <b>${esc(c.businessName||'this pin')}</b> to its new spot, then tap Done`;
+  $('#pbGps').style.display = 'none';
+  $('#pbCancel').textContent = 'Done moving';
+  banner.classList.add('show');
+  toast('Drag the pin to reposition it');
+}
+function exitMoveMode(){
+  if(moving.active){
+    const m = markers.get(moving.id);
+    if(m) m.marker.gmpDraggable = false;
+  }
+  moving = {active:false, id:null};
+  $('#placeBanner').classList.remove('show');
+  $('#pbGps').style.display = '';
+  $('#pbCancel').textContent = 'Cancel';
 }
 
 /* ---------------- Place mode ---------------- */
@@ -6076,6 +6129,13 @@ function renderFilterBar(){
 }
 
 /* ---------------- HubSpot tab ---------------- */
+function hsRowHTML(c){
+  const od = isOverdue(c);
+  return `<label class="hs-row" data-id="${c.id}">
+    <span class="hs-name">${od?'<span class="od-tag">⚠ Overdue</span>':''}${esc(c.businessName||'Untitled contact')}</span>
+    <input type="checkbox" class="hs-check" data-act="done" data-id="${c.id}">
+  </label>`;
+}
 function renderHubspot(){
   const list=$('#hubspotList');
   const items = contacts.filter(c=>!c.hubspotEntered)
@@ -6087,7 +6147,7 @@ function renderHubspot(){
     list.innerHTML = `<div class="empty"><div class="big">Inbox zero 🎉</div><div class="sm">Every contact has been entered in HubSpot. New notes you save will land here for your end-of-day review.</div></div>`;
     return;
   }
-  list.innerHTML = items.map(c=>cardHTML(c,{done:true})).join('');
+  list.innerHTML = items.map(hsRowHTML).join('');
 }
 
 /* ---------------- Recent tab ---------------- */
@@ -6117,9 +6177,7 @@ function cardHTML(c,opts){
   metaBits.push(`<span class="meta-item">${pinned?'📍 Pinned':'Unpinned'}</span>`);
   if(opts.recent) metaBits.push(`<span class="meta-item">${c.hubspotEntered?'In HubSpot':'Not in HubSpot'}</span>`);
   let foot='';
-  if(opts.done){
-    foot=`<div class="card-foot"><button class="btn btn-secondary" data-act="edit" data-id="${c.id}">Edit</button><button class="btn btn-primary" data-act="done" data-id="${c.id}">✓ Mark entered</button></div>`;
-  }else if(opts.recent){
+  if(opts.recent){
     foot=`<div class="card-foot">`;
     foot+= pinned
       ? `<button class="btn btn-secondary" data-act="view" data-id="${c.id}">Show on map</button>`
@@ -6429,8 +6487,8 @@ function wire(){
   // recenter
   $('#recenterBtn').addEventListener('click',recenter);
   // place banner — delegates to pick-first or normal place mode
-  $('#pbGps').addEventListener('click',()=>{ place.pickFirst ? pickFirstViaGps() : placeViaGps(); });
-  $('#pbCancel').addEventListener('click',()=>{ place.pickFirst ? exitPickFirst() : exitPlaceMode(); });
+  $('#pbGps').addEventListener('click',()=>{ if(moving.active) return; place.pickFirst ? pickFirstViaGps() : placeViaGps(); });
+  $('#pbCancel').addEventListener('click',()=>{ if(moving.active){ exitMoveMode(); return; } place.pickFirst ? exitPickFirst() : exitPlaceMode(); });
   // filter chips
   $('#filterBar').addEventListener('click',e=>{
     const chip=e.target.closest('.chip'); if(!chip) return;
@@ -6458,8 +6516,8 @@ function wire(){
     const c=contacts.find(x=>x.id===id); if(!c) return;
     if(act==='done'){
       await db.contacts.update(id,{hubspotEntered:1}); c.hubspotEntered=1;
-      const card=btn.closest('.card');
-      if(card){ card.style.maxHeight=card.offsetHeight+'px'; requestAnimationFrame(()=>card.classList.add('removing')); }
+      const row=btn.closest('.hs-row');
+      if(row){ row.style.maxHeight=row.offsetHeight+'px'; requestAnimationFrame(()=>row.classList.add('removing')); }
       setTimeout(()=>{ updateBadges(); renderHubspot(); },300);
       toast('Marked as entered');
     }else if(act==='edit'){ openSheet(c); }
@@ -6489,7 +6547,10 @@ function wire(){
   $('#importFile').addEventListener('change',e=>{ const f=e.target.files[0]; if(f) importJSON(f); e.target.value=''; });
 
   // expose for popup inline handler
-  window.FP = { edit:(id)=>{ const c=contacts.find(x=>x.id===id); if(c) openSheet(c); } };
+  window.FP = {
+    edit:(id)=>{ const c=contacts.find(x=>x.id===id); if(c) openSheet(c); },
+    move:(id)=> enterMoveMode(id)
+  };
 }
 /* --- FAB menu helpers --- */
 function openFabMenu(){ $('#fabMenu').classList.add('show'); $('#fab').classList.add('open'); $('#fabScrim').classList.add('show'); }
@@ -6555,6 +6616,7 @@ window.initApp = async function(){
     gestureHandling:'greedy',
     mapId:'DEMO_MAP_ID',
   });
+  map.addListener('click', ()=> closeAllInfoWindows());
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(p=>{
       const ll={lat:p.coords.latitude,lng:p.coords.longitude};
