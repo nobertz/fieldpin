@@ -578,6 +578,18 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 .cc-edit-row-actions{display:flex;gap:9px;margin-bottom:6px;}
 .cc-edit-row-actions .btn{padding:11px;font-size:13.5px;}
 
+.cc-dm-row{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:var(--surface-2);border:1px solid var(--hair);border-radius:12px;
+  padding:11px 12px;margin-bottom:8px;
+}
+.cc-dm-info{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.cc-dm-name{font-size:14.5px;font-weight:700;color:var(--ink);}
+.cc-dm-title{font-size:12px;font-weight:600;color:var(--muted);}
+.cc-dm-actions{display:flex;gap:6px;flex:0 0 auto;}
+.cc-dm-edit{margin-bottom:8px;}
+.cc-followup-done{margin-top:8px;border-style:solid;color:var(--ink);}
+
 .cc-notes-list{display:flex;flex-direction:column;margin-top:10px;}
 .cc-note-entry{background:var(--surface-2);border:1px solid var(--hair);border-radius:12px;padding:12px 13px;margin-bottom:10px;}
 .cc-note-entry:last-child{margin-bottom:0;}
@@ -718,6 +730,11 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
       <label class="eyebrow">Business name</label>
       <input class="input" id="f_name" type="text" placeholder="e.g. Black Box Engineering" autocomplete="off">
     </div>
+    <div class="cc-section" id="f_dmSection">
+      <span class="cc-label">Decision maker(s)</span>
+      <div id="f_dmList"></div>
+      <div id="f_dmAddWrap"></div>
+    </div>
     <div class="cc-section">
       <span class="cc-label">Status <span style="color:var(--danger)">*</span></span>
       <div class="cc-status-row" id="f_swatches"></div>
@@ -727,18 +744,22 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
       <label class="eyebrow">Notes</label>
       <textarea class="cc-textarea" id="f_notes" placeholder="Who you talked to, what happened, next step…"></textarea>
     </div>
-    <div class="row-2">
-      <div class="field">
-        <label class="eyebrow">Visit date / time</label>
-        <div class="inline-clear">
-          <input class="input" id="f_visit" type="datetime-local">
-        </div>
-        <button class="mini-link" id="f_visitClear" type="button">Clear visit time</button>
+    <div class="field">
+      <label class="eyebrow">Visit date / time</label>
+      <div class="cc-edit-row">
+        <input class="cc-input" id="f_visit" type="datetime-local">
+        <button class="cc-iconbtn cancel" id="f_visitClear" type="button" aria-label="Clear visit time">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
       </div>
     </div>
-    <div class="field">
-      <label class="eyebrow">Follow-up date</label>
-      <input class="input" id="f_follow" type="date">
+    <div class="cc-section">
+      <span class="cc-label">Follow-up</span>
+      <button class="cc-addlink" id="f_followAddBtn" type="button">+ Add follow-up</button>
+      <div class="cc-edit-row" id="f_followRow" style="display:none;">
+        <input class="cc-input" id="f_follow" type="date">
+      </div>
+      <button class="cc-clear-link" id="f_followClear" type="button" style="display:none;">Remove follow-up</button>
     </div>
     <div class="cc-section">
       <div class="cc-check-row">
@@ -6050,6 +6071,19 @@ db.version(2).stores({
   }
   if(entries.length) await tx.table('notesLog').bulkAdd(entries);
 });
+db.version(3).stores({
+  contacts: '++id, businessName, color, hubspotEntered, followUpDate, createdAt, latitude, longitude',
+  notesLog: '++id, contactId, date, createdAt',
+  meta: 'key'
+}).upgrade(async tx => {
+  // Migrate single decisionMaker string field into a decisionMakers array
+  const allContacts = await tx.table('contacts').toArray();
+  for(const c of allContacts){
+    if(c.decisionMaker && String(c.decisionMaker).trim()){
+      await tx.table('contacts').update(c.id, { decisionMakers: [{name: c.decisionMaker, title:''}] });
+    }
+  }
+});
 
 const DEFAULT_COLORS = [
   {key:'green',  label:'Interested',        hex:'#1E9E4A'},
@@ -6074,13 +6108,16 @@ let place = { active:false, id:null, pickFirst:false };
 let moving = { active:false, id:null };
 let pendingLL = null;    // location captured in drop-pin-first mode
 let formColor = null;
+let formDecisionMakers = [];  // [{name,title}] local list for the creation form (no contact id yet)
+let formDmEditing = null;     // null | 'new' | index number
 
 // Contact card (view/edit existing contact)
 let cardContactId = null;     // which contact is open in the card
-let cardEditingField = null;  // which single field is mid-edit: 'name' | 'dmName' | 'follow' | 'newnote' | 'note:<id>' | null
+let cardEditingField = null;  // which single field is mid-edit: 'name' | 'follow' | 'newnote' | 'note:<id>' | 'dmNew' | 'dm:<idx>' | null
 let cardNotes = [];           // this contact's history entries, newest first
 
 let map, userMarker = null;
+let placesService = null, poiIW = null, poiPending = null; // {name, lat, lng} for "Place pin here" popup
 let placeClickListener = null, pickFirstClickListener = null;
 
 /* ---------------- Helpers ---------------- */
@@ -6192,6 +6229,22 @@ function makeGMarker(c){
 }
 function closeAllInfoWindows(){
   markers.forEach(({iw})=>iw.close());
+  if(poiIW) poiIW.close();
+}
+function showPoiPopup(name, lat, lng){
+  poiPending = {name, lat, lng};
+  if(!poiIW) poiIW = new google.maps.InfoWindow({headerDisabled:true});
+  poiIW.setContent(poiPopupHTML(name));
+  poiIW.setPosition({lat,lng});
+  poiIW.open({map});
+}
+function poiPopupHTML(name){
+  return `<div class="fp-pop">
+    <div class="fp-pop-name">${esc(name||'This location')}</div>
+    <div class="fp-pop-actions">
+      <button class="fp-pop-edit" onclick="FP.placeHere()">Place pin here</button>
+    </div>
+  </div>`;
 }
 function popupHTML(c){
   const col = colorByKey(c.color), od = isOverdue(c), latest = latestNoteFor(c.id);
@@ -6455,16 +6508,46 @@ function renderSwatches(){
     <button type="button" class="cc-dot${formColor===c.key?' sel':''}" data-key="${c.key}" style="background:${c.hex}" aria-label="${esc(c.label)}"></button>`).join('');
   $('#f_swatchLabel').textContent = formColor ? colorByKey(formColor).label : 'Tap a color to set status';
 }
+function formDmEditRowHTML(dm){
+  return `<div class="cc-dm-edit">
+    <input class="cc-input" id="f_dmName" type="text" placeholder="Name" value="${esc(dm?dm.name:'')}" style="margin-bottom:8px;width:100%;">
+    <input class="cc-input" id="f_dmTitle" type="text" placeholder="Title / role (optional)" value="${esc(dm&&dm.title?dm.title:'')}" style="margin-bottom:9px;width:100%;">
+    <div class="cc-edit-row-actions">
+      <button class="btn btn-primary" type="button" data-dmact="save">Save</button>
+      <button class="btn btn-ghost" type="button" data-dmact="cancel">Cancel</button>
+    </div>
+  </div>`;
+}
+function renderFormDMs(){
+  $('#f_dmList').innerHTML = formDecisionMakers.map((dm,i)=>{
+    if(formDmEditing===i) return formDmEditRowHTML(dm);
+    return `<div class="cc-dm-row">
+      <div class="cc-dm-info">
+        <span class="cc-dm-name">${esc(dm.name)}</span>
+        ${dm.title?`<span class="cc-dm-title">${esc(dm.title)}</span>`:''}
+      </div>
+      <div class="cc-dm-actions">
+        <button class="cc-pencil sm" type="button" data-dmact="edit" data-idx="${i}" aria-label="Edit">${ICON_PENCIL}</button>
+        <button class="cc-pencil sm" type="button" data-dmact="delete" data-idx="${i}" aria-label="Remove">${ICON_X}</button>
+      </div>
+    </div>`;
+  }).join('');
+  $('#f_dmAddWrap').innerHTML = formDmEditing==='new'
+    ? formDmEditRowHTML(null)
+    : `<button class="cc-addlink" type="button" data-dmact="add">+ Add ${formDecisionMakers.length?'another':'decision maker'}</button>`;
+}
 function openSheet(withPin){
   formColor = null;
+  formDecisionMakers = []; formDmEditing = null;
   $('#sheetTitle').textContent = 'New note';
   $('#f_name').value = '';
   $('#f_notes').value = '';
   $('#f_notes').style.height = '';
-  $('#f_follow').value = '';
+  hideFollowField();
   $('#f_hub').checked = false;
   $('#f_visit').value = toLocalInput(new Date());
   renderSwatches();
+  renderFormDMs();
   const foot=$('#sheetFoot');
   if(withPin && pendingLL){
     foot.innerHTML = `
@@ -6481,12 +6564,25 @@ function openSheet(withPin){
   showSheet('#sheet');
   setTimeout(()=>$('#f_name').focus(),300);
 }
+function showFollowField(){
+  $('#f_followAddBtn').style.display='none';
+  $('#f_followRow').style.display='flex';
+  $('#f_followClear').style.display='';
+  setTimeout(()=>$('#f_follow').focus(),50);
+}
+function hideFollowField(){
+  $('#f_follow').value='';
+  $('#f_followAddBtn').style.display='';
+  $('#f_followRow').style.display='none';
+  $('#f_followClear').style.display='none';
+}
 function gatherForm(){
   if(!formColor){ toast('Pick a status color first'); return null; }
   const visitVal=$('#f_visit').value;
   return {
     businessName: $('#f_name').value.trim(),
     color: formColor,
+    decisionMakers: formDecisionMakers.slice(),
     notes: $('#f_notes').value.trim(),
     visitDate: visitVal ? new Date(visitVal).toISOString() : null,
     followUpDate: $('#f_follow').value || null,
@@ -6576,10 +6672,6 @@ async function ccSaveEdit(){
     const v=$('#cc_editText').value.trim();
     if(!v){ toast("Name can't be empty"); return; }
     await cardSave({businessName:v}); cardEditingField=null; renderCard();
-  } else if(f==='dmName'){
-    const v=$('#cc_editText').value.trim();
-    if(!v){ toast('Enter a name, or tap ✕ to cancel'); return; }
-    await cardSave({decisionMaker:v}); cardEditingField=null; renderCard();
   } else if(f==='follow'){
     const v=$('#cc_editDate').value;
     if(!v){ toast('Pick a date, or tap ✕ to cancel'); return; }
@@ -6598,6 +6690,27 @@ async function ccSaveEdit(){
     const iso = dt? new Date(dt).toISOString() : new Date().toISOString();
     await ccSaveNoteEdit(entryId, text, iso);
   }
+}
+async function ccSaveDm(){
+  const name = $('#cc_dmName').value.trim();
+  const title = $('#cc_dmTitle').value.trim();
+  if(!name){ toast('Enter a name, or tap Cancel'); return; }
+  const c = contacts.find(x=>x.id===cardContactId);
+  const dms = Array.isArray(c.decisionMakers) ? [...c.decisionMakers] : [];
+  if(cardEditingField==='dmNew'){
+    dms.push({name, title});
+  } else if(cardEditingField && cardEditingField.startsWith('dm:')){
+    dms[Number(cardEditingField.split(':')[1])] = {name, title};
+  }
+  await cardSave({decisionMakers:dms});
+  cardEditingField=null; renderCard();
+}
+async function ccDeleteDm(idx){
+  const c = contacts.find(x=>x.id===cardContactId);
+  const dms = Array.isArray(c.decisionMakers) ? [...c.decisionMakers] : [];
+  dms.splice(idx,1);
+  await cardSave({decisionMakers:dms});
+  renderCard();
 }
 
 function ccNameViewHTML(c){
@@ -6661,25 +6774,37 @@ function ccMainNotesHTML(c){
     </div>
   </div>`;
 }
-function ccDecisionMakerHTML(c){
-  if(cardEditingField==='dmName'){
-    return `<div class="cc-section">
-      <span class="cc-label">Decision maker</span>
-      <div class="cc-edit-row">
-        <input class="cc-input" id="cc_editText" type="text" placeholder="Their name" value="${esc(c.decisionMaker||'')}">
-        <button class="cc-iconbtn save" data-cc-act="save" aria-label="Save">${ICON_CHECK}</button>
-        <button class="cc-iconbtn cancel" data-cc-act="canceledit" aria-label="Cancel">${ICON_X}</button>
+function ccDmEditRowHTML(dm){
+  return `<div class="cc-dm-edit">
+    <input class="cc-input" id="cc_dmName" type="text" placeholder="Name" value="${esc(dm?dm.name:'')}" style="margin-bottom:8px;width:100%;">
+    <input class="cc-input" id="cc_dmTitle" type="text" placeholder="Title / role (optional)" value="${esc(dm&&dm.title?dm.title:'')}" style="margin-bottom:9px;width:100%;">
+    <div class="cc-edit-row-actions">
+      <button class="btn btn-primary" data-cc-act="savedm">Save</button>
+      <button class="btn btn-ghost" data-cc-act="canceldm">Cancel</button>
+    </div>
+  </div>`;
+}
+function ccDecisionMakersHTML(c){
+  const dms = Array.isArray(c.decisionMakers) ? c.decisionMakers : [];
+  const editIdx = (cardEditingField && cardEditingField.startsWith('dm:')) ? Number(cardEditingField.split(':')[1]) : -1;
+  const isNew = cardEditingField === 'dmNew';
+  const rows = dms.map((dm,i)=>{
+    if(i===editIdx) return ccDmEditRowHTML(dm);
+    return `<div class="cc-dm-row">
+      <div class="cc-dm-info">
+        <span class="cc-dm-name">${esc(dm.name)}</span>
+        ${dm.title?`<span class="cc-dm-title">${esc(dm.title)}</span>`:''}
+      </div>
+      <div class="cc-dm-actions">
+        <button class="cc-pencil sm" data-cc-act="editdm" data-dm-idx="${i}" aria-label="Edit">${ICON_PENCIL}</button>
+        <button class="cc-pencil sm" data-cc-act="deletedm" data-dm-idx="${i}" aria-label="Remove">${ICON_X}</button>
       </div>
     </div>`;
-  }
+  }).join('');
   return `<div class="cc-section">
-    <div class="cc-check-row">
-      <label class="cc-check-tap" data-cc-act="toggledm">
-        <input type="checkbox" ${c.decisionMaker?'checked':''} tabindex="-1">
-        <span>${c.decisionMaker?`Decision maker: <b>${esc(c.decisionMaker)}</b>`:'Decision maker?'}</span>
-      </label>
-      ${c.decisionMaker?`<button class="cc-pencil sm" data-cc-act="editdm" aria-label="Edit decision maker">${ICON_PENCIL}</button>`:''}
-    </div>
+    <span class="cc-label">Decision maker${dms.length>1?'s':''}</span>
+    ${rows}
+    ${isNew ? ccDmEditRowHTML(null) : `<button class="cc-addlink" data-cc-act="adddm">+ Add ${dms.length?'another':'decision maker'}</button>`}
   </div>`;
 }
 function ccHubspotHTML(c){
@@ -6713,6 +6838,7 @@ function ccFollowUpHTML(c){
         ${od?'<span class="od-tag">⚠ Overdue</span>':''}
         <button class="cc-pencil sm" data-cc-act="editfollow" aria-label="Edit follow-up">${ICON_PENCIL}</button>
       </div>
+      <button class="cc-addlink cc-followup-done" data-cc-act="markfollowedup">✓ Mark as followed up</button>
     </div>`;
   }
   return `<div class="cc-section"><button class="cc-addlink" data-cc-act="editfollow">+ Add follow-up</button></div>`;
@@ -6729,14 +6855,14 @@ function renderCard(){
 
   $('#cc_titleArea').innerHTML = cardEditingField==='name' ? ccNameEditHTML(c) : ccNameViewHTML(c);
   $('#cc_body').innerHTML = `
+    ${ccDecisionMakersHTML(c)}
     ${ccStatusHTML(c)}
     ${ccMainNotesHTML(c)}
-    ${ccDecisionMakerHTML(c)}
     ${ccHubspotHTML(c)}
     ${ccFollowUpHTML(c)}
   `;
 
-  const focusEl = $('#cc_editText') || $('#cc_editDate');
+  const focusEl = $('#cc_editText') || $('#cc_editDate') || $('#cc_dmName');
   if(focusEl) setTimeout(()=>{ focusEl.focus(); try{ focusEl.select && focusEl.select(); }catch(e){} autoGrow(focusEl); },60);
 }
 
@@ -6796,11 +6922,13 @@ function download(filename, text, type){
 }
 function csvCell(v){ v=String(v==null?'':v); return /[",\n\r]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }
 function exportCSV(){
-  const headers=['Business Name','Status','Decision Maker','Latest Note','Latest Visit','Total Notes','Follow-up Date','Entered in HubSpot','Latitude','Longitude','Created'];
+  const headers=['Business Name','Status','Decision Maker(s)','Latest Note','Latest Visit','Total Notes','Follow-up Date','Entered in HubSpot','Latitude','Longitude','Created'];
   const rows=contacts.map(c=>{
     const entries=getNotesFor(c.id), latest=entries[0];
+    const dms = Array.isArray(c.decisionMakers) ? c.decisionMakers : [];
+    const dmText = dms.map(dm=> dm.title ? `${dm.name} (${dm.title})` : dm.name).join('; ');
     return [
-      c.businessName||'', colorByKey(c.color).label, c.decisionMaker||'',
+      c.businessName||'', colorByKey(c.color).label, dmText,
       latest?latest.text:'', latest?new Date(latest.date).toLocaleString():'',
       entries.length,
       c.followUpDate||'', c.hubspotEntered?'Yes':'No',
@@ -6813,7 +6941,7 @@ function exportCSV(){
   toast('CSV exported');
 }
 function exportJSON(){
-  const payload={ app:'FieldPin', schema:2, exportedAt:new Date().toISOString(), settings, contacts, notes:allNotes };
+  const payload={ app:'FieldPin', schema:3, exportedAt:new Date().toISOString(), settings, contacts, notes:allNotes };
   download(`fieldpin-backup-${todayYMD()}.json`, JSON.stringify(payload,null,2), 'application/json');
   toast('Backup created');
 }
@@ -6828,13 +6956,19 @@ async function importJSON(file){
     await db.transaction('rw', db.contacts, db.notesLog, db.meta, async ()=>{
       await db.contacts.clear();
       await db.notesLog.clear();
-      const clean = data.contacts.map(c=>({
-        id:c.id, businessName:c.businessName||'', color:c.color||'green',
-        decisionMaker:c.decisionMaker||null, followUpDate:c.followUpDate||null,
-        hubspotEntered:c.hubspotEntered?1:0,
-        latitude:(c.latitude==null?null:c.latitude), longitude:(c.longitude==null?null:c.longitude),
-        createdAt:c.createdAt||Date.now()
-      }));
+      const clean = data.contacts.map(c=>{
+        let decisionMakers = Array.isArray(c.decisionMakers) ? c.decisionMakers : [];
+        if(!decisionMakers.length && c.decisionMaker && String(c.decisionMaker).trim()){
+          decisionMakers = [{name:c.decisionMaker, title:''}]; // legacy single-field backup
+        }
+        return {
+          id:c.id, businessName:c.businessName||'', color:c.color||'green',
+          decisionMakers, followUpDate:c.followUpDate||null,
+          hubspotEntered:c.hubspotEntered?1:0,
+          latitude:(c.latitude==null?null:c.latitude), longitude:(c.longitude==null?null:c.longitude),
+          createdAt:c.createdAt||Date.now()
+        };
+      });
       await db.contacts.bulkPut(clean);
 
       let noteRows=[];
@@ -6983,6 +7117,23 @@ function wire(){
   });
   $('#f_visitClear').addEventListener('click',()=>{ $('#f_visit').value=''; });
   $('#f_notes').addEventListener('input',()=> autoGrow($('#f_notes')));
+  $('#f_followAddBtn').addEventListener('click', showFollowField);
+  $('#f_followClear').addEventListener('click', hideFollowField);
+  $('#f_dmSection').addEventListener('click', e=>{
+    const btn=e.target.closest('[data-dmact]'); if(!btn) return;
+    const act=btn.dataset.dmact;
+    if(act==='add'){ formDmEditing='new'; renderFormDMs(); setTimeout(()=>{ const el=$('#f_dmName'); if(el) el.focus(); },50); }
+    else if(act==='edit'){ formDmEditing=Number(btn.dataset.idx); renderFormDMs(); setTimeout(()=>{ const el=$('#f_dmName'); if(el) el.focus(); },50); }
+    else if(act==='delete'){ formDecisionMakers.splice(Number(btn.dataset.idx),1); formDmEditing=null; renderFormDMs(); }
+    else if(act==='save'){
+      const name=$('#f_dmName').value.trim(); const title=$('#f_dmTitle').value.trim();
+      if(!name){ toast('Enter a name, or tap Cancel'); return; }
+      if(formDmEditing==='new'){ formDecisionMakers.push({name,title}); }
+      else if(typeof formDmEditing==='number'){ formDecisionMakers[formDmEditing]={name,title}; }
+      formDmEditing=null; renderFormDMs();
+    }
+    else if(act==='cancel'){ formDmEditing=null; renderFormDMs(); }
+  });
   $('#sheetFoot').addEventListener('click',e=>{
     const b=e.target.closest('[data-form]'); if(!b) return; formAction(b.dataset.form);
   });
@@ -7003,14 +7154,27 @@ function wire(){
     if(act==='menutoggle'){ $('#cc_menu').classList.toggle('show'); }
     else if(act==='editname'){ cardEditingField='name'; renderCard(); }
     else if(act==='setcolor'){ await cardSave({color:btn.dataset.color}); renderCard(); }
-    else if(act==='editdm'){ cardEditingField='dmName'; renderCard(); }
-    else if(act==='toggledm'){
-      if(c.decisionMaker){ await cardSave({decisionMaker:null}); renderCard(); toast('Decision maker cleared'); }
-      else { cardEditingField='dmName'; renderCard(); }
+    else if(act==='adddm'){ cardEditingField='dmNew'; renderCard(); }
+    else if(act==='editdm'){ cardEditingField='dm:'+btn.dataset.dmIdx; renderCard(); }
+    else if(act==='savedm'){ await ccSaveDm(); }
+    else if(act==='canceldm'){ cardEditingField=null; renderCard(); }
+    else if(act==='deletedm'){
+      if(!confirm('Remove this decision maker?')) return;
+      await ccDeleteDm(Number(btn.dataset.dmIdx));
     }
     else if(act==='togglehub'){ await cardSave({hubspotEntered:c.hubspotEntered?0:1}); renderCard(); }
     else if(act==='editfollow'){ cardEditingField='follow'; renderCard(); }
     else if(act==='clearfollow'){ await cardSave({followUpDate:null}); cardEditingField=null; renderCard(); toast('Follow-up removed'); }
+    else if(act==='markfollowedup'){
+      const prevDate=c.followUpDate;
+      await cardSave({followUpDate:null});
+      cardEditingField=null; renderCard();
+      showUndo('Marked as followed up', async ()=>{
+        await cardSave({followUpDate:prevDate});
+        renderCard();
+        toast('Follow-up restored');
+      });
+    }
     else if(act==='addnote'){ cardEditingField='newnote'; renderCard(); }
     else if(act==='editnote'){ cardEditingField='note:'+btn.dataset.noteId; renderCard(); }
     else if(act==='deletenote'){
@@ -7072,7 +7236,16 @@ function wire(){
   // expose for popup inline handler
   window.FP = {
     edit:(id)=> openContactCard(id),
-    move:(id)=> enterMoveMode(id)
+    move:(id)=> enterMoveMode(id),
+    placeHere:()=>{
+      if(!poiPending) return;
+      const {name,lat,lng} = poiPending;
+      if(poiIW) poiIW.close();
+      pendingLL=[lat,lng];
+      openSheet(true);
+      if(name) $('#f_name').value = name;
+      poiPending = null;
+    }
   };
 }
 /* --- FAB menu helpers --- */
@@ -7139,7 +7312,22 @@ window.initApp = async function(){
     gestureHandling:'greedy',
     mapId:'DEMO_MAP_ID',
   });
-  map.addListener('click', ()=> closeAllInfoWindows());
+  placesService = new google.maps.places.PlacesService(map);
+  map.addListener('click', e=>{
+    closeAllInfoWindows();
+    if(e.placeId && !place.active && !place.pickFirst && !moving.active){
+      e.stop();
+      const lat=e.latLng.lat(), lng=e.latLng.lng();
+      placesService.getDetails({placeId:e.placeId, fields:['name','geometry']}, (result, status)=>{
+        let name='', plat=lat, plng=lng;
+        if(status===google.maps.places.PlacesServiceStatus.OK && result){
+          name = result.name || '';
+          if(result.geometry && result.geometry.location){ plat=result.geometry.location.lat(); plng=result.geometry.location.lng(); }
+        }
+        showPoiPopup(name, plat, plng);
+      });
+    }
+  });
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(p=>{
       const ll={lat:p.coords.latitude,lng:p.coords.longitude};
@@ -7152,6 +7340,6 @@ window.initApp = async function(){
 
 })();
 </script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD_B5fQxlgWLNgcQfF1tKU1W7q9QYfXwzg&libraries=marker&callback=initApp&loading=async"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD_B5fQxlgWLNgcQfF1tKU1W7q9QYfXwzg&libraries=marker,places&callback=initApp&loading=async"></script>
 </body>
 </html>
