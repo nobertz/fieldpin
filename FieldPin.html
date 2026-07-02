@@ -32,6 +32,9 @@
   --shadow-sm:0 2px 8px rgba(16,21,28,.12);
   --danger:#E0322F;
   --amber:#F4C20D;
+  --accent:#10151C;          /* primary-action bg — dark in light mode */
+  --accent-ink:#FFFFFF;      /* text on primary-action bg */
+  --toast-bg:#10151C;        /* always-dark toast surface */
   --top-h:54px;
   --nav-h:64px;
   --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
@@ -51,6 +54,9 @@
   --hair-strong:#363F4A;
   --shadow:0 6px 26px rgba(0,0,0,.55);
   --shadow-sm:0 2px 10px rgba(0,0,0,.5);
+  --accent:#2F6FED;          /* primary-action bg — bright blue in dark mode */
+  --accent-ink:#FFFFFF;
+  --toast-bg:#2A333F;        /* dark toast surface distinct from bg */
 }
 
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -147,9 +153,9 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
   white-space:nowrap;
 }
 .chip .dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto;box-shadow:0 0 0 1.5px rgba(255,255,255,.6) inset;}
+.chip.active{color:var(--accent-ink);border-color:transparent;background:var(--accent);}
 .chip.all{font-weight:700;}
-.chip.active{color:#fff;border-color:transparent;}
-.chip.all.active{background:var(--ink);}
+.chip.all.active{background:var(--accent);}
 .chip.active .dot{box-shadow:0 0 0 2px rgba(255,255,255,.85) inset;}
 
 /* place-mode banner */
@@ -216,7 +222,7 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
   position:absolute;right:16px;z-index:25;
   bottom:calc(var(--nav-h) + var(--safe-b) + 18px);
   width:58px;height:58px;border-radius:19px;
-  background:var(--ink);color:#fff;border:none;
+  background:var(--accent);color:var(--accent-ink);border:none;
   box-shadow:0 8px 22px rgba(16,21,28,.34);
   display:flex;align-items:center;justify-content:center;
   transition:transform .12s ease;
@@ -353,7 +359,7 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
   padding:15px;font-size:15px;font-weight:700;letter-spacing:.01em;
 }
 .btn:active{filter:brightness(.94);}
-.btn-primary{background:var(--ink);color:#fff;}
+.btn-primary{background:var(--accent);color:var(--accent-ink);}
 .btn-secondary{background:var(--surface-2);color:var(--ink);border:1px solid var(--hair-strong);}
 .btn-ghost{background:transparent;color:var(--muted);}
 .btn-danger{background:transparent;color:var(--danger);border:1px solid var(--danger);}
@@ -389,6 +395,17 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 .section-label{padding:16px 16px 4px;}
 
 /* ---------- HubSpot quick-check list ---------- */
+.range-row{
+  display:flex;gap:6px;padding:10px 14px 2px;overflow-x:auto;
+  scrollbar-width:none;-ms-overflow-style:none;
+}
+.range-row::-webkit-scrollbar{display:none;}
+.range-btn{
+  flex:0 0 auto;height:32px;padding:0 14px;border-radius:16px;
+  background:var(--surface-2);border:1px solid var(--hair-strong);
+  font-size:13px;font-weight:650;color:var(--muted);white-space:nowrap;
+}
+.range-btn.active{background:var(--accent);color:var(--accent-ink);border-color:transparent;}
 #hsFilterBar, #recentFilterBar{
   display:flex;gap:7px;overflow-x:auto;padding:10px 14px 2px;
   scrollbar-width:none;-ms-overflow-style:none;
@@ -403,14 +420,15 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 }
 .hs-row:last-child{border-bottom:none;}
 .hs-row.removing{opacity:0;transform:translateX(40px);max-height:0!important;padding-top:0;padding-bottom:0;border-bottom:none;}
+.hs-open{
+  flex:1;min-width:0;display:flex;align-items:center;gap:11px;
+  background:none;border:none;padding:0;text-align:left;
+}
+.hs-open:active{opacity:.55;}
+.hs-dot{width:14px;height:14px;border-radius:50%;flex:0 0 auto;box-shadow:0 0 0 1px var(--hair-strong) inset;}
 .hs-name{font-size:15.5px;font-weight:650;color:var(--ink);display:flex;align-items:center;gap:8px;min-width:0;flex:1;}
 .hs-name .od-tag{flex:0 0 auto;}
-.hs-view{
-  flex:0 0 auto;background:var(--surface-2);color:var(--ink);
-  border:1px solid var(--hair-strong);border-radius:9px;
-  padding:7px 12px;font-size:12.5px;font-weight:700;
-}
-.hs-check{width:23px;height:23px;flex:0 0 auto;accent-color:var(--ink);}
+.hs-check{width:23px;height:23px;flex:0 0 auto;accent-color:var(--accent);}
 
 /* ---------- Settings ---------- */
 .set-group{margin-bottom:22px;}
@@ -423,7 +441,7 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 .toggle-row .tr-sub{font-size:12px;color:var(--muted);margin-top:2px;}
 .seg{display:flex;background:var(--surface);border:1px solid var(--hair-strong);border-radius:10px;padding:3px;gap:3px;}
 .seg button{border:none;background:transparent;border-radius:7px;padding:8px 14px;font-size:13px;font-weight:700;color:var(--muted);}
-.seg button.on{background:var(--ink);color:#fff;}
+.seg button.on{background:var(--accent);color:var(--accent-ink);}
 
 .color-row{
   display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--hair);
@@ -495,7 +513,7 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
   padding:11px;font-size:13.5px;font-weight:700;
 }
 .fp-pop-edit{
-  flex:1;background:var(--ink);color:#fff;border:none;
+  flex:1;background:var(--accent);color:var(--accent-ink);border:none;
   border-radius:10px;padding:11px;font-size:13.5px;font-weight:700;
 }
 
@@ -573,7 +591,7 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 .cc-textarea:focus{border-color:var(--ink);}
 .cc-iconbtn{flex:0 0 auto;width:36px;height:36px;border-radius:10px;border:none;display:flex;align-items:center;justify-content:center;}
 .cc-iconbtn svg{width:16px;height:16px;}
-.cc-iconbtn.save{background:var(--ink);color:#fff;}
+.cc-iconbtn.save{background:var(--accent);color:var(--accent-ink);}
 .cc-iconbtn.cancel{background:var(--surface-2);color:var(--muted);border:1px solid var(--hair-strong);}
 .cc-edit-row-actions{display:flex;gap:9px;margin-bottom:6px;}
 .cc-edit-row-actions .btn{padding:11px;font-size:13.5px;}
@@ -601,8 +619,8 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 /* ---------- Toast ---------- */
 #toast{
   position:fixed;left:50%;bottom:calc(var(--nav-h) + var(--safe-b) + 18px);
-  transform:transl-x(-50%) translateY(14px);transform:translateX(-50%) translateY(14px);
-  background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;
+  transform:translateX(-50%) translateY(14px);
+  background:var(--toast-bg);color:#fff;padding:12px 18px;border-radius:12px;
   font-size:13.5px;font-weight:600;box-shadow:var(--shadow);z-index:90;
   opacity:0;pointer-events:none;transition:opacity .2s ease, transform .2s ease;
   max-width:86vw;text-align:center;
@@ -613,7 +631,7 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 #undoToast{
   position:fixed;left:50%;bottom:calc(var(--nav-h) + var(--safe-b) + 18px);
   transform:translateX(-50%) translateY(14px);
-  background:var(--ink);color:#fff;padding:10px 10px 10px 16px;border-radius:12px;
+  background:var(--toast-bg);color:#fff;padding:10px 10px 10px 16px;border-radius:12px;
   font-size:13.5px;font-weight:600;box-shadow:var(--shadow);z-index:91;
   display:flex;align-items:center;gap:12px;
   opacity:0;pointer-events:none;transition:opacity .2s ease, transform .2s ease;
@@ -663,12 +681,24 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 
   <section id="hubspotView" class="view list-view">
     <div class="view-head"><h2>HubSpot check</h2><p id="hubspotSub">Contacts not yet entered in the CRM</p></div>
+    <div class="range-row" id="hsRangeRow">
+      <button class="range-btn" data-range="today">Today</button>
+      <button class="range-btn" data-range="week">This week</button>
+      <button class="range-btn" data-range="month">This month</button>
+      <button class="range-btn active" data-range="all">All</button>
+    </div>
     <div id="hsFilterBar"></div>
     <div class="hs-list" id="hubspotList"></div>
   </section>
 
   <section id="recentView" class="view list-view">
     <div class="view-head"><h2>Recent notes</h2><p id="recentSub">Newest first · overdue follow-ups on top</p></div>
+    <div class="range-row" id="recentRangeRow">
+      <button class="range-btn" data-range="today">Today</button>
+      <button class="range-btn" data-range="week">This week</button>
+      <button class="range-btn" data-range="month">This month</button>
+      <button class="range-btn active" data-range="all">All</button>
+    </div>
     <div id="recentFilterBar"></div>
     <div class="cards" id="recentList"></div>
   </section>
@@ -811,6 +841,7 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 </div>
 
 <input type="file" id="importFile" accept="application/json,.json" hidden>
+<input type="file" id="importCsvFile" accept=".csv,text/csv" hidden>
 
 <script>
 /* ===== Inlined Dexie 3.2.7 ===== */
@@ -6103,6 +6134,8 @@ const markers = new Map();         // id -> {marker, infoWindow}
 let activeFilters = new Set();      // empty = ALL
 let hsFilters = new Set();          // empty = ALL (HubSpot tab color filter)
 let recentFilters = new Set();      // empty = ALL (Notes tab color filter)
+let hsRange = 'all';                // 'all' | 'today' | 'week' | 'month' (HubSpot tab)
+let recentRange = 'all';            // 'all' | 'today' | 'week' | 'month' (Notes tab)
 let currentTab = 'map';
 let place = { active:false, id:null, pickFirst:false };
 let moving = { active:false, id:null };
@@ -6133,12 +6166,22 @@ const ICON_PENCIL = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" 
 
 function autoGrow(el){
   if(!el || el.tagName!=='TEXTAREA') return;
+  // Find the scrollable ancestor (the sheet/card body) so we can preserve its scroll position.
+  // Setting height:'auto' momentarily collapses the box, which on iOS Safari yanks the
+  // surrounding scroll container to the top; we capture and restore it around the reflow.
+  let scroller = el.parentElement;
+  while(scroller && scroller!==document.body){
+    const oy = getComputedStyle(scroller).overflowY;
+    if((oy==='auto'||oy==='scroll') && scroller.scrollHeight>scroller.clientHeight) break;
+    scroller = scroller.parentElement;
+  }
+  const prevScroll = scroller ? scroller.scrollTop : 0;
   el.style.height='auto';
   el.style.height=(el.scrollHeight+2)+'px';
+  if(scroller) scroller.scrollTop = prevScroll;
 }
 
-function todayYMD(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`; }
-function isOverdue(c){ return !!c.followUpDate && c.followUpDate < todayYMD(); }
+function todayYMD(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`; }function isOverdue(c){ return !!c.followUpDate && c.followUpDate < todayYMD(); }
 function toLocalInput(d){ const p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; }
 function fmtDateTime(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); }
 function fmtDate(ymd){ if(!ymd) return '—'; const [y,m,dd]=ymd.split('-').map(Number); return new Date(y,m-1,dd).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); }
@@ -6393,10 +6436,12 @@ function renderHsFilterBar(){
 
 /* ---------------- HubSpot tab ---------------- */
 function hsRowHTML(c){
-  const od = isOverdue(c);
+  const od = isOverdue(c), col = colorByKey(c.color);
   return `<div class="hs-row" data-id="${c.id}">
-    <span class="hs-name">${od?'<span class="od-tag">⚠ Overdue</span>':''}${esc(c.businessName||'Untitled contact')}</span>
-    <button class="hs-view" data-act="hsview" data-id="${c.id}">View</button>
+    <button class="hs-open" data-act="hsview" data-id="${c.id}">
+      <span class="hs-dot" style="background:${col.hex}"></span>
+      <span class="hs-name">${od?'<span class="od-tag">⚠ Overdue</span>':''}${esc(c.businessName||'Untitled contact')}</span>
+    </button>
     <input type="checkbox" class="hs-check" data-act="done" data-id="${c.id}">
   </div>`;
 }
@@ -6404,6 +6449,7 @@ function renderHubspot(){
   const list=$('#hubspotList');
   const items = contacts.filter(c=>!c.hubspotEntered)
                         .filter(c=>hsFilters.size===0 || hsFilters.has(c.color))
+                        .filter(c=>inDateRange(latestVisitDate(c), hsRange))
                         .sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
   $('#hubspotSub').textContent = items.length
     ? `${items.length} contact${items.length>1?'s':''} waiting to be entered`
@@ -6434,9 +6480,11 @@ function renderRecent(){
     list.innerHTML = `<div class="empty"><div class="big">No notes yet</div><div class="sm">Tap the <b>+</b> button to jot your first contact. You can pin it to the map now or later.</div></div>`;
     return;
   }
-  const filtered = contacts.filter(c=>recentFilters.size===0 || recentFilters.has(c.color));
+  const filtered = contacts
+    .filter(c=>recentFilters.size===0 || recentFilters.has(c.color))
+    .filter(c=>inDateRange(latestVisitDate(c), recentRange));
   if(!filtered.length){
-    list.innerHTML = `<div class="empty"><div class="big">No matches</div><div class="sm">No contacts match the selected status filter.</div></div>`;
+    list.innerHTML = `<div class="empty"><div class="big">No matches</div><div class="sm">No contacts match the selected filters.</div></div>`;
     return;
   }
   const overdue = filtered.filter(isOverdue).sort((a,b)=>(a.followUpDate<b.followUpDate?-1:1));
@@ -6908,6 +6956,14 @@ function renderSettings(){
         <span class="db-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9"/><path d="M7 14l5-5 5 5"/><path d="M5 3h14"/></svg></span>
         <span class="db-text"><div class="db-title">Restore backup (JSON)</div><div class="db-sub">Replaces everything on this device</div></span>
       </button>
+      <button class="data-btn" data-data="importcsv">
+        <span class="db-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h11l5 5v11H4z"/><path d="M9 13l2 2 4-4"/></svg></span>
+        <span class="db-text"><div class="db-title">Import contacts (CSV)</div><div class="db-sub">Adds contacts — never overwrites existing</div></span>
+      </button>
+      <button class="data-btn" data-data="csvtemplate">
+        <span class="db-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h11l5 5v11H4z"/><path d="M8 13h8M8 17h5"/></svg></span>
+        <span class="db-text"><div class="db-title">Download CSV template</div><div class="db-sub">Blank sheet with the right columns to fill in</div></span>
+      </button>
     </div>
 
     <p class="about">FieldPin · stored on this device only.<br>Data lives in your browser (IndexedDB). Back up regularly.</p>
@@ -6990,6 +7046,83 @@ async function importJSON(file){
   }catch(e){ console.error(e); toast('Restore failed'); }
 }
 
+/* ---------------- CSV import (adds contacts only) ---------------- */
+// Minimal RFC-4180-ish CSV parser: handles quoted fields, escaped quotes, commas and newlines inside quotes.
+function parseCSV(text){
+  const rows=[]; let row=[]; let field=''; let i=0; let inQuotes=false;
+  text = text.replace(/^\uFEFF/, ''); // strip BOM
+  while(i<text.length){
+    const ch=text[i];
+    if(inQuotes){
+      if(ch==='"'){
+        if(text[i+1]==='"'){ field+='"'; i+=2; continue; }
+        inQuotes=false; i++; continue;
+      }
+      field+=ch; i++; continue;
+    }
+    if(ch==='"'){ inQuotes=true; i++; continue; }
+    if(ch===','){ row.push(field); field=''; i++; continue; }
+    if(ch==='\r'){ i++; continue; }
+    if(ch==='\n'){ row.push(field); rows.push(row); row=[]; field=''; i++; continue; }
+    field+=ch; i++;
+  }
+  // last field/row
+  if(field.length>0 || row.length>0){ row.push(field); rows.push(row); }
+  return rows.filter(r=> r.length && !(r.length===1 && r[0].trim()===''));
+}
+function downloadCsvTemplate(){
+  const header='Business Name,Latitude,Longitude';
+  const example='Example Coffee Co,40.7608,-111.8910';
+  download('fieldpin-import-template.csv', header+'\r\n'+example+'\r\n', 'text/csv;charset=utf-8;');
+  toast('Template downloaded');
+}
+async function importCSV(file){
+  let rows;
+  try{ rows = parseCSV(await file.text()); }
+  catch(e){ toast("Couldn't read that CSV"); return; }
+  if(!rows.length){ toast('That CSV looks empty'); return; }
+
+  // Header detection: find name / latitude / longitude columns by header text
+  const header = rows[0].map(h=>h.trim().toLowerCase());
+  const nameIdx = header.findIndex(h=> h==='business name' || h==='name' || h==='businessname');
+  let latIdx = header.findIndex(h=> h==='latitude' || h==='lat');
+  let lngIdx = header.findIndex(h=> h==='longitude' || h==='lng' || h==='long' || h==='lon');
+  let dataRows, resolvedNameIdx=nameIdx;
+  if(nameIdx===-1){
+    // No recognizable header — assume columns are: name, latitude, longitude and treat all rows as data
+    resolvedNameIdx=0; latIdx=1; lngIdx=2; dataRows=rows;
+  } else {
+    dataRows=rows.slice(1);
+  }
+
+  const defaultColor = (settings.colors[0] && settings.colors[0].key) || 'green';
+  let added=0, skipped=0, pinned=0;
+  const toAdd=[];
+  for(const r of dataRows){
+    const name=(r[resolvedNameIdx]||'').trim();
+    if(!name){ skipped++; continue; }
+    let lat=null, lng=null;
+    if(latIdx>-1 && lngIdx>-1){
+      const la=parseFloat((r[latIdx]||'').trim());
+      const lo=parseFloat((r[lngIdx]||'').trim());
+      if(!isNaN(la) && !isNaN(lo) && la>=-90 && la<=90 && lo>=-180 && lo<=180){ lat=la; lng=lo; pinned++; }
+    }
+    toAdd.push({
+      businessName:name, color:defaultColor, decisionMakers:[],
+      followUpDate:null, hubspotEntered:0,
+      latitude:lat, longitude:lng, createdAt:Date.now()
+    });
+    added++;
+  }
+  if(!added){ toast('No valid rows found — need at least a business name'); return; }
+  if(!confirm(`Import ${added} contact${added===1?'':'s'}?\n\n${pinned} will be pinned to the map (had coordinates).\n${added-pinned} will be unpinned — add them to the map later.\n${skipped?`\n${skipped} row(s) skipped (no name).`:''}\n\nThis ADDS to your existing ${contacts.length} contact(s) and won't overwrite anything.`)) return;
+  try{
+    await db.contacts.bulkAdd(toAdd);
+    await refresh();
+    toast(`Imported ${added} contact${added===1?'':'s'}`);
+  }catch(e){ console.error(e); toast('Import failed'); }
+}
+
 /* ---------------- Sheet / drawer open-close ---------------- */
 function showSheet(sel){ $(sel).classList.add('show'); scrimFor(sel).classList.add('show'); }
 function hideSheet(sel){ $(sel).classList.remove('show'); scrimFor(sel).classList.remove('show'); }
@@ -7003,6 +7136,30 @@ async function loadContacts(){ contacts = await db.contacts.toArray(); }
 async function loadAllNotes(){ allNotes = await db.notesLog.toArray(); }
 function getNotesFor(id){ return allNotes.filter(n=>n.contactId===id).sort((a,b)=> new Date(b.date)-new Date(a.date)); }
 function latestNoteFor(id){ const e=getNotesFor(id); return e.length?e[0]:null; }
+function latestVisitDate(c){ const n=latestNoteFor(c.id); return n ? n.date : null; }
+function inDateRange(dateISO, range){
+  if(!range || range==='all') return true;
+  if(!dateISO) return false;              // no visit date can't match a specific window
+  const d=new Date(dateISO); if(isNaN(d)) return false;
+  const now=new Date();
+  const startOfToday=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  if(range==='today'){
+    const endOfToday=new Date(startOfToday.getTime()+86400000);
+    return d>=startOfToday && d<endOfToday;
+  }
+  if(range==='week'){
+    // week starts Sunday
+    const startOfWeek=new Date(startOfToday.getTime() - startOfToday.getDay()*86400000);
+    const endOfWeek=new Date(startOfWeek.getTime()+7*86400000);
+    return d>=startOfWeek && d<endOfWeek;
+  }
+  if(range==='month'){
+    const startOfMonth=new Date(now.getFullYear(),now.getMonth(),1);
+    const startOfNextMonth=new Date(now.getFullYear(),now.getMonth()+1,1);
+    return d>=startOfMonth && d<startOfNextMonth;
+  }
+  return true;
+}
 function updateBadges(){
   const hs=contacts.filter(c=>!c.hubspotEntered).length;
   const od=contacts.filter(isOverdue).length;
@@ -7099,6 +7256,20 @@ function wire(){
     else{ const k=chip.dataset.color; recentFilters.has(k)?recentFilters.delete(k):recentFilters.add(k); }
     renderRecentFilterBar();
     await saveRecentFilters();
+    renderRecent();
+  });
+  // hubspot date-range row
+  $('#hsRangeRow').addEventListener('click',e=>{
+    const b=e.target.closest('.range-btn'); if(!b) return;
+    hsRange=b.dataset.range;
+    $$('#hsRangeRow .range-btn').forEach(x=>x.classList.toggle('active', x===b));
+    renderHubspot();
+  });
+  // notes date-range row
+  $('#recentRangeRow').addEventListener('click',e=>{
+    const b=e.target.closest('.range-btn'); if(!b) return;
+    recentRange=b.dataset.range;
+    $$('#recentRangeRow .range-btn').forEach(x=>x.classList.toggle('active', x===b));
     renderRecent();
   });
   // undo toast
@@ -7221,6 +7392,8 @@ function wire(){
       if(k==='csv') exportCSV();
       else if(k==='json') exportJSON();
       else if(k==='import') $('#importFile').click();
+      else if(k==='importcsv') $('#importCsvFile').click();
+      else if(k==='csvtemplate') downloadCsvTemplate();
     }
   });
   $('#settingsBody').addEventListener('input',async e=>{
@@ -7232,6 +7405,7 @@ function wire(){
       await saveSettings(); applyColorEffects(); }
   });
   $('#importFile').addEventListener('change',e=>{ const f=e.target.files[0]; if(f) importJSON(f); e.target.value=''; });
+  $('#importCsvFile').addEventListener('change',e=>{ const f=e.target.files[0]; if(f) importCSV(f); e.target.value=''; });
 
   // expose for popup inline handler
   window.FP = {
