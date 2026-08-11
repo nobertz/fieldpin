@@ -375,20 +375,20 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 }
 .card.removing{opacity:0;transform:translateX(40px);max-height:0!important;margin-top:-11px;}
 .card-top{padding:13px 14px 11px;position:relative;}
-.card-ro-toggle{
-  position:absolute;top:12px;right:12px;z-index:2;
-  width:28px;height:28px;border-radius:50%;flex:0 0 auto;
+.card.tappable{cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.card.tappable:active{background:var(--surface-2);}
+.card-pin-btn{
+  position:absolute;top:11px;right:11px;z-index:2;
+  width:32px;height:32px;border-radius:9px;flex:0 0 auto;
   display:flex;align-items:center;justify-content:center;
-  background:var(--surface-2);border:1.5px solid var(--hair-strong);
-  color:transparent;padding:0;
+  background:var(--surface-2);border:1px solid var(--hair-strong);
+  color:var(--accent);padding:0;
 }
-.card-ro-toggle svg{width:16px;height:16px;}
-.card-ro-toggle.on{
-  background:var(--accent);border-color:var(--accent);color:var(--accent-ink);
-}
-.card-ro-toggle:active{transform:scale(.9);}
-/* keep title clear of the toggle */
-.card-title{padding-right:34px;}
+.card-pin-btn svg{width:17px;height:17px;}
+.card-pin-btn.unpinned{color:var(--muted);}
+.card-pin-btn:active{transform:scale(.9);background:var(--hair-strong);}
+/* keep title clear of the pin button */
+.card-title{padding-right:38px;}
 .card-title{display:flex;align-items:center;gap:9px;font-size:16px;font-weight:680;letter-spacing:-.01em;}
 .card-title .dot{width:13px;height:13px;border-radius:50%;flex:0 0 auto;}
 .card-status{font-size:12px;font-weight:650;color:var(--muted);margin:5px 0 0 22px;}
@@ -853,11 +853,15 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 <div id="fabMenu" aria-hidden="true">
   <button class="fab-opt" id="fabOptPin">
     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-    Drop pin first
+    Pin a location
   </button>
-  <button class="fab-opt" id="fabOptNote">
+  <button class="fab-opt" id="fabOptContact">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V7l6-4 6 4v14"/><path d="M9 9h.01M9 13h.01M9 17h.01"/><path d="M15 21v-9l6 0v9"/><path d="M18 15h.01M18 18h.01"/></svg>
+    New contact
+  </button>
+  <button class="fab-opt" id="fabOptQuickNote">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-    New note
+    Quick note
   </button>
 </div>
 <div id="fabScrim"></div>
@@ -6336,6 +6340,7 @@ const truncate = (s,n) => { s=String(s||''); return s.length>n ? s.slice(0,n-1)+
 const ICON_X = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>`;
 const ICON_CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>`;
 const ICON_PENCIL = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`;
+const ICON_PIN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M12 21s7-6.6 7-12a7 7 0 1 0-14 0c0 5.4 7 12 7 12z"/><circle cx="12" cy="9" r="2.4"/></svg>`;
 
 function autoGrow(el){
   if(!el || el.tagName!=='TEXTAREA') return;
@@ -6834,26 +6839,22 @@ function cardHTML(c,opts){
   const metaBits=[];
   if(latest) metaBits.push(`<span class="meta-item">Last visit <b>${esc(fmtDateTime(latest.date))}</b></span>`);
   if(c.followUpDate) metaBits.push(`<span class="meta-item">Follow-up <b>${esc(fmtDate(c.followUpDate))}</b></span>`);
-  let foot='';
-  if(opts.recent){
-    foot=`<div class="card-foot">`;
-    foot+= pinned
-      ? `<button class="btn btn-secondary" data-act="view" data-id="${c.id}">Show on map</button>`
-      : `<button class="btn btn-primary" data-act="addmap" data-id="${c.id}">Add to map</button>`;
-    foot+=`<button class="btn btn-secondary" data-act="edit" data-id="${c.id}">View</button></div>`;
-  }
-  const roToggle = opts.recent
-    ? `<button class="card-ro-toggle${c.reachOut?' on':''}" data-act="cardtogglero" data-id="${c.id}" aria-label="${c.reachOut?'On Reach Out list — tap to remove':'Add to Reach Out list'}" title="Reach Out">${c.reachOut?ICON_CHECK:''}</button>`
+  // Top-right pin button: jumps to the pin, or starts placement if unpinned.
+  const pinBtn = opts.recent
+    ? `<button class="card-pin-btn${pinned?'':' unpinned'}" data-act="cardpin" data-id="${c.id}" aria-label="${pinned?'Show on map':'Add to map'}" title="${pinned?'Show on map':'Add to map'}">${ICON_PIN}</button>`
     : '';
-  return `<div class="card${od?' overdue':''}" data-id="${c.id}">
+  // Whole card opens the contact when in the notes list.
+  const openAttr = opts.recent ? `data-act="cardopen" data-id="${c.id}"` : '';
+  const tapClass = opts.recent ? ' tappable' : '';
+  return `<div class="card${od?' overdue':''}${tapClass}" data-id="${c.id}" ${openAttr}>
     <div class="card-top">
-      ${roToggle}
+      ${pinBtn}
       ${od?'<div style="margin-bottom:8px"><span class="od-tag">⚠ Overdue</span></div>':''}
       <div class="card-title"><span class="dot" style="background:${col.hex}"></span>${esc(c.businessName||'Untitled contact')}</div>
       <div class="card-status">${esc(col.label)}</div>
       ${latest?`<p class="card-note">${esc(truncate(latest.text,150))}</p>`:''}
       ${metaBits.length?`<div class="card-meta">${metaBits.join('')}</div>`:''}
-    </div>${foot}</div>`;
+    </div></div>`;
 }
 
 /* ---------------- Master list (drawer) ---------------- */
@@ -7556,8 +7557,9 @@ function wire(){
   $$('.nav-btn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
   // fab
   $('#fab').addEventListener('click',toggleFabMenu);
-  $('#fabOptNote').addEventListener('click',()=>{ closeFabMenu(); openSheet(); });
+  $('#fabOptContact').addEventListener('click',()=>{ closeFabMenu(); openSheet(); });
   $('#fabOptPin').addEventListener('click',()=>{ closeFabMenu(); enterPickFirst(); });
+  $('#fabOptQuickNote').addEventListener('click',()=>{ closeFabMenu(); startQuickNote(); });
   $('#fabScrim').addEventListener('click',closeFabMenu);
   // top bar
   $('#menuBtn').addEventListener('click',openDrawer);
@@ -7740,7 +7742,12 @@ function wire(){
   $('#settingsClose').addEventListener('click',()=>hideSheet('#settingsSheet'));
   $('#f_swatches').addEventListener('click',e=>{
     const sw=e.target.closest('.cc-dot'); if(!sw) return;
-    formColor=sw.dataset.key; renderSwatches();
+    formColor=sw.dataset.key;
+    // Update selection in-place (no innerHTML rebuild) so the notes
+    // textarea keeps its value and focus on mobile.
+    $$('#f_swatches .cc-dot').forEach(d=>d.classList.toggle('sel', d.dataset.key===formColor));
+    const lbl=$('#f_swatchLabel');
+    if(lbl) lbl.textContent = formColor ? colorByKey(formColor).label : 'Tap a color to set status';
   });
   $('#f_visitClear').addEventListener('click',()=>{ $('#f_visit').value=''; });
   $('#f_notes').addEventListener('input',()=> autoGrow($('#f_notes')));
@@ -7832,17 +7839,10 @@ function wire(){
     else if(act==='edit'){ openContactCard(id); }
     else if(act==='view'){ focusContact(id); }
     else if(act==='addmap'){ enterPlaceMode(id); }
-    else if(act==='cardtogglero'){
-      const newVal = c.reachOut ? 0 : 1;
-      await db.contacts.update(id,{reachOut:newVal}); c.reachOut=newVal;
-      // update just this card's toggle without a full re-render
-      const t=btn;
-      t.classList.toggle('on', !!newVal);
-      t.innerHTML = newVal ? ICON_CHECK : '';
-      t.setAttribute('aria-label', newVal?'On Reach Out list — tap to remove':'Add to Reach Out list');
-      updateBadges();
-      if(cardContactId===id) renderCard();
-      toast(newVal?'Added to Reach Out':'Removed from Reach Out');
+    else if(act==='cardopen'){ openContactCard(id); }
+    else if(act==='cardpin'){
+      if(isPinned(c)) focusContact(id);
+      else enterPlaceMode(id);
     }
   });
   // settings interactions (delegated)
@@ -7886,6 +7886,17 @@ function wire(){
   };
 }
 /* --- FAB menu helpers --- */
+function startQuickNote(){
+  // Jump to Notes → General Notes and open a fresh note editor.
+  switchTab('recent');
+  notesSubTab='general';
+  $$('.notes-subtab').forEach(b=>b.classList.toggle('active', b.dataset.subtab==='general'));
+  $('#contactNotesPane').style.display='none';
+  $('#generalNotesPane').style.display='';
+  renderGeneralNotes();
+  if(typeof gnEditingId!=='undefined' && gnEditingId==='new') return;
+  openNewGeneralNote();
+}
 function openFabMenu(){ $('#fabMenu').classList.add('show'); $('#fab').classList.add('open'); $('#fabScrim').classList.add('show'); }
 function closeFabMenu(){ $('#fabMenu').classList.remove('show'); $('#fab').classList.remove('open'); $('#fabScrim').classList.remove('show'); }
 function toggleFabMenu(){ $('#fabMenu').classList.contains('show') ? closeFabMenu() : openFabMenu(); }
