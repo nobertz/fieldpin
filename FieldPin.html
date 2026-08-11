@@ -561,8 +561,7 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
   -webkit-appearance:none;appearance:none;
 }
 .gn-sheet-date:focus{border-color:var(--ink);}
-.gn-sheet-actions{display:flex;gap:9px;margin-top:14px;}
-.gn-sheet-actions .btn{flex:1;padding:13px;font-size:14.5px;border-radius:12px;}
+/* (Save/Cancel removed — the sheet auto-saves on close) */
 
 /* Contact picker sheet */
 #contactPickerSheet .sheet-body{padding:0 0 24px;}
@@ -6768,38 +6767,42 @@ function openGeneralNoteSheet(id){
   $('#gnSheetBody').innerHTML = `
     <input class="gn-sheet-title-input" id="gnSheetTitle" type="text" placeholder="Title (optional)" value="${esc(n.title||'')}" autocomplete="off">
     <textarea class="gn-sheet-area" id="gnSheetText" data-autogrow="1" placeholder="Write your note…">${esc(n.text||'')}</textarea>
-    <input class="gn-sheet-date" id="gnSheetDate" type="datetime-local" value="${toLocalInput(new Date(n.date))}">
-    <div class="gn-sheet-actions">
-      <button class="btn btn-primary" id="gnSheetSave">Save</button>
-      <button class="btn btn-ghost" id="gnSheetCancel">Cancel</button>
-    </div>`;
+    <input class="gn-sheet-date" id="gnSheetDate" type="datetime-local" value="${toLocalInput(new Date(n.date))}">`;
   showSheet('#gnSheet');
   setTimeout(()=>{
     const ta=$('#gnSheetText'); if(ta) autoGrow(ta);
     if(id==='new'){ const t=$('#gnSheetTitle'); if(t) t.focus(); }
   },80);
 }
-function closeGeneralNoteSheet(){
+// Close the sheet. By default this auto-saves (like the contact card).
+// Pass {discard:true} to close without saving (used by delete/attach).
+async function closeGeneralNoteSheet(opts){
+  const discard = opts && opts.discard;
+  const id = gnSheetId;
+  // Capture field values before tearing down the sheet.
+  const titleEl=$('#gnSheetTitle'), textEl=$('#gnSheetText'), dateEl=$('#gnSheetDate');
+  const title = titleEl ? (titleEl.value||'').trim() : '';
+  const text  = textEl ? (textEl.value||'').trim() : '';
+  const dtVal = dateEl ? dateEl.value : '';
+  const dateISO = dtVal ? new Date(dtVal).toISOString() : new Date().toISOString();
+
   hideSheet('#gnSheet');
   $('#gnSheetMenu').classList.remove('show');
   gnSheetId = null;
-}
-async function saveGeneralNoteSheet(){
-  const title=($('#gnSheetTitle').value||'').trim();
-  const text=($('#gnSheetText').value||'').trim();
-  const dtVal=$('#gnSheetDate').value;
-  const dateISO = dtVal ? new Date(dtVal).toISOString() : new Date().toISOString();
-  if(!title && !text){ toast('Add a title or some text first'); return; }
-  if(gnSheetId==='new'){
+
+  if(discard || id==null) return;
+
+  if(id==='new'){
+    // Brand-new note: discard silently if nothing was entered.
+    if(!title && !text) return;
     await db.generalNotes.add({title, text, date:dateISO, createdAt:Date.now()});
     toast('Note saved');
   } else {
-    await db.generalNotes.update(gnSheetId, {title, text, date:dateISO});
-    toast('Note updated');
+    // Existing note: save edits. If emptied entirely, keep as-is (no destructive wipe).
+    await db.generalNotes.update(id, {title, text, date:dateISO});
   }
   await loadGeneralNotes();
-  closeGeneralNoteSheet();
-  renderGeneralNotes();
+  if(currentTab==='recent' && notesSubTab==='general') renderGeneralNotes();
 }
 function openNewGeneralNote(){
   openGeneralNoteSheet('new');
@@ -6844,7 +6847,7 @@ async function attachGeneralNote(contactId){
   await loadGeneralNotes();
   gnAttachingId=null;
   hideSheet('#contactPickerSheet');
-  closeGeneralNoteSheet();
+  await closeGeneralNoteSheet({discard:true});
   renderGeneralNotes();
   renderMarkers(); updateBadges();
   if(currentTab==='recent') renderRecent();
@@ -7742,8 +7745,8 @@ function wire(){
     openGeneralNoteSheet(Number(btn.dataset.gnid));
   });
   // general note detail sheet
-  $('#gnScrim').addEventListener('click', closeGeneralNoteSheet);
-  $('#gnSheetClose').addEventListener('click', closeGeneralNoteSheet);
+  $('#gnScrim').addEventListener('click', ()=>closeGeneralNoteSheet());
+  $('#gnSheetClose').addEventListener('click', ()=>closeGeneralNoteSheet());
   $('#gnSheetMenuBtn').addEventListener('click',(e)=>{
     e.stopPropagation();
     $('#gnSheetMenu').classList.toggle('show');
@@ -7755,15 +7758,24 @@ function wire(){
     if(!e.target.closest('#gnSheetMenu') && e.target.id!=='gnSheetMenuBtn' && !e.target.closest('#gnSheetMenuBtn')){
       $('#gnSheetMenu').classList.remove('show');
     }
-    if(e.target.id==='gnSheetSave'){ await saveGeneralNoteSheet(); return; }
-    if(e.target.id==='gnSheetCancel'){ closeGeneralNoteSheet(); return; }
     const mi=e.target.closest('[data-gnsheet]'); if(!mi) return;
     const act=mi.dataset.gnsheet;
     if(act==='attach'){
-      if(gnSheetId && gnSheetId!=='new') openContactPicker(gnSheetId);
+      // Save any edits first, then hand off to the contact picker.
+      const id=gnSheetId;
+      if(id && id!=='new'){
+        const titleEl=$('#gnSheetTitle'), textEl=$('#gnSheetText'), dateEl=$('#gnSheetDate');
+        const title=titleEl?(titleEl.value||'').trim():'';
+        const text=textEl?(textEl.value||'').trim():'';
+        const dtVal=dateEl?dateEl.value:'';
+        const dateISO=dtVal?new Date(dtVal).toISOString():new Date().toISOString();
+        await db.generalNotes.update(id,{title,text,date:dateISO});
+        await loadGeneralNotes();
+        openContactPicker(id);
+      }
     } else if(act==='delete'){
       const id=gnSheetId;
-      if(id && id!=='new'){ closeGeneralNoteSheet(); await deleteGeneralNote(id); }
+      if(id && id!=='new'){ await closeGeneralNoteSheet({discard:true}); await deleteGeneralNote(id); }
     }
   });
   // contact picker
