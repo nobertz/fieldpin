@@ -163,19 +163,24 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 /* place-mode banner */
 #placeBanner{
   display:none;margin-bottom:8px;
-  background:var(--ink);color:#fff;border-radius:var(--r);
+  background:#10151C;color:#fff;border-radius:var(--r);
   box-shadow:var(--shadow);padding:11px 12px;
   align-items:center;gap:10px;
 }
+[data-theme="dark"] #placeBanner{
+  background:#232B35;color:#EAEEF3;border:1px solid rgba(255,255,255,.10);
+}
 #placeBanner.show{display:flex;}
-#placeBanner .pb-text{flex:1;font-size:13.5px;line-height:1.3;}
+#placeBanner .pb-text{flex:1;font-size:13.5px;line-height:1.3;color:inherit;}
 #placeBanner .pb-text b{font-weight:760;}
 #placeBanner button{
   flex:0 0 auto;border:none;border-radius:10px;
   font-size:12.5px;font-weight:700;padding:9px 11px;
 }
-#pbGps{background:#fff;color:var(--ink);}
+#pbGps{background:#fff;color:#10151C;}
+[data-theme="dark"] #pbGps{background:#EAEEF3;color:#10151C;}
 #pbCancel{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4)!important;}
+[data-theme="dark"] #pbCancel{color:#EAEEF3;border-color:rgba(255,255,255,.28)!important;}
 
 /* recenter button */
 #recenterBtn{
@@ -506,7 +511,7 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 }
 .notes-subtab.active{color:var(--accent);border-bottom-color:var(--accent);}
 
-/* General notes */
+/* General notes — collapsed cards */
 .gn-header{padding:12px 14px 6px;}
 .gn-add-btn{width:100%;padding:13px;font-size:14.5px;font-weight:700;border-radius:12px;}
 .gn-list{padding:4px 14px calc(var(--nav-h) + var(--safe-b) + 24px);display:flex;flex-direction:column;gap:10px;}
@@ -514,48 +519,50 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
   position:relative;
   background:var(--surface);border:1px solid var(--hair);border-radius:var(--r);
   box-shadow:var(--shadow-sm);padding:13px 14px;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
 }
-.gn-card.tappable:active{background:var(--surface-2);}
+.gn-card:active{background:var(--surface-2);}
 .gn-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.gn-card-headings{min-width:0;flex:1;}
 .gn-card-date{font-size:11px;font-weight:650;letter-spacing:.02em;color:var(--muted);text-transform:uppercase;}
-.gn-card-text{font-size:14.5px;line-height:1.5;color:var(--ink);white-space:pre-wrap;word-break:break-word;margin-top:6px;}
+.gn-card-title{font-size:15.5px;font-weight:720;color:var(--ink);letter-spacing:-.01em;margin-top:3px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.gn-card-title.untitled{color:var(--muted);font-weight:600;font-style:italic;}
+.gn-card-text{
+  font-size:14px;line-height:1.5;color:var(--ink-soft);white-space:pre-wrap;word-break:break-word;margin-top:6px;
+  display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden;
+}
 .gn-menu-btn{
   flex:0 0 auto;width:28px;height:28px;margin:-4px -4px 0 0;border-radius:8px;border:none;
   background:none;color:var(--muted);display:flex;align-items:center;justify-content:center;
 }
 .gn-menu-btn:active{background:var(--surface-2);}
 .gn-menu-btn svg{width:18px;height:18px;}
-.gn-menu{
-  position:absolute;top:38px;right:12px;z-index:8;
-  background:var(--surface);border:1px solid var(--hair-strong);border-radius:12px;
-  box-shadow:var(--shadow);min-width:172px;padding:6px;
-  opacity:0;pointer-events:none;transform:translateY(-6px);
-  transition:opacity .14s ease, transform .14s ease;
-}
-.gn-menu.show{opacity:1;pointer-events:auto;transform:none;}
-.gn-menu-item{
-  width:100%;text-align:left;padding:11px 12px;border-radius:8px;border:none;background:none;
-  font-size:14px;font-weight:600;color:var(--ink);
-}
-.gn-menu-item:active{background:var(--surface-2);}
-.gn-menu-item.danger{color:var(--danger);}
-/* Editor — matches the contact-card note editor */
-.gn-edit-area{
+
+/* General note detail sheet (view + edit) */
+#gnSheet .cc-body{padding-top:4px;}
+.gn-sheet-title-input{
   width:100%;box-sizing:border-box;background:var(--surface-2);border:1px solid var(--hair-strong);
-  border-radius:11px;padding:12px 13px;font-size:15px;line-height:1.45;
-  outline:none;resize:none;overflow:hidden;min-height:90px;
+  border-radius:11px;padding:12px 13px;font-size:16px;font-weight:700;color:var(--ink);
+  outline:none;margin-bottom:10px;
+}
+.gn-sheet-title-input:focus{border-color:var(--ink);}
+.gn-sheet-area{
+  width:100%;box-sizing:border-box;background:var(--surface-2);border:1px solid var(--hair-strong);
+  border-radius:11px;padding:12px 13px;font-size:15px;line-height:1.5;
+  outline:none;resize:none;overflow:hidden;min-height:160px;
   color:var(--ink);font-family:inherit;
 }
-.gn-edit-area:focus{border-color:var(--ink);}
-.gn-edit-date{
+.gn-sheet-area:focus{border-color:var(--ink);}
+.gn-sheet-date{
   width:100%;box-sizing:border-box;min-width:0;max-width:100%;
-  margin-top:9px;background:var(--surface-2);border:1px solid var(--hair-strong);
+  margin-top:10px;background:var(--surface-2);border:1px solid var(--hair-strong);
   border-radius:10px;padding:11px 12px;font-size:14px;color:var(--ink);outline:none;
   -webkit-appearance:none;appearance:none;
 }
-.gn-edit-date:focus{border-color:var(--ink);}
-.gn-edit-actions{display:flex;gap:9px;margin-top:10px;}
-.gn-edit-actions .btn{flex:1;padding:12px;font-size:14px;border-radius:11px;}
+.gn-sheet-date:focus{border-color:var(--ink);}
+.gn-sheet-actions{display:flex;gap:9px;margin-top:14px;}
+.gn-sheet-actions .btn{flex:1;padding:13px;font-size:14.5px;border-radius:12px;}
 
 /* Contact picker sheet */
 #contactPickerSheet .sheet-body{padding:0 0 24px;}
@@ -993,6 +1000,25 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
     <input class="cp-search" id="cpSearch" type="text" placeholder="Search contacts…" autocomplete="off">
     <div class="cp-list" id="cpList"></div>
   </div>
+</div>
+
+<!-- General note detail sheet (view + edit) -->
+<div class="scrim" id="gnScrim"></div>
+<div class="sheet" id="gnSheet">
+  <div class="sheet-grab"></div>
+  <div class="cc-head">
+    <div class="cc-title-row"><h2 id="gnSheetHeading" style="margin:0;font-size:18px;font-weight:760;letter-spacing:-.02em;">Note</h2></div>
+    <div class="cc-head-icons">
+      <button class="cc-pencil" id="gnSheetMenuBtn" aria-label="More options">
+        <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg>
+      </button>
+      <button class="cc-pencil" id="gnSheetClose" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <div class="cc-menu" id="gnSheetMenu"></div>
+    </div>
+  </div>
+  <div class="cc-body" id="gnSheetBody"></div>
 </div>
 
 <!-- Settings sheet -->
@@ -6707,68 +6733,81 @@ function renderGeneralNotes(){
     return;
   }
   list.innerHTML = sorted.map(n=>{
-    if(gnEditingId===n.id){
-      return `<div class="gn-card" data-gnid="${n.id}">
-        <textarea class="gn-edit-area" id="gnEditText" data-autogrow="1" placeholder="Your note…">${esc(n.text)}</textarea>
-        <input class="gn-edit-date" type="datetime-local" id="gnEditDate" value="${toLocalInput(new Date(n.date))}">
-        <div class="gn-edit-actions">
-          <button class="btn btn-primary" data-gnact="save" data-gnid="${n.id}">Save</button>
-          <button class="btn btn-ghost" data-gnact="cancel" data-gnid="${n.id}">Cancel</button>
-        </div>
-      </div>`;
-    }
-    return `<div class="gn-card tappable" data-gnid="${n.id}" data-gnact="open">
+    const title=(n.title||'').trim();
+    const titleHTML = title
+      ? `<div class="gn-card-title">${esc(title)}</div>`
+      : `<div class="gn-card-title untitled">Untitled note</div>`;
+    const bodyHTML = (n.text||'').trim()
+      ? `<div class="gn-card-text">${esc(n.text)}</div>` : '';
+    return `<div class="gn-card" data-gnid="${n.id}" data-gnact="open">
       <div class="gn-card-head">
-        <div class="gn-card-date">${fmtDateTime(n.date)}</div>
-        <button class="gn-menu-btn" data-gnact="menutoggle" data-gnid="${n.id}" aria-label="Note options">${GN_DOTS}</button>
+        <div class="gn-card-headings">
+          <div class="gn-card-date">${fmtDateTime(n.date)}</div>
+          ${titleHTML}
+        </div>
       </div>
-      <div class="gn-card-text">${esc(n.text)}</div>
-      <div class="gn-menu" id="gnMenu-${n.id}">
-        <button class="gn-menu-item" data-gnact="attach" data-gnid="${n.id}">Attach to contact</button>
-        <button class="gn-menu-item danger" data-gnact="delete" data-gnid="${n.id}">Delete</button>
-      </div>
+      ${bodyHTML}
     </div>`;
   }).join('');
-  // Wire autogrow for edit textarea
-  setTimeout(()=>{const ta=$('#gnEditText'); if(ta){ autoGrow(ta); } },30);
+}
+
+/* ----- General note detail sheet (view + edit) ----- */
+let gnSheetId = null;   // open note id, or 'new'
+function openGeneralNoteSheet(id){
+  gnSheetId = id;
+  const n = (id==='new')
+    ? {id:'new', title:'', text:'', date:new Date().toISOString()}
+    : generalNotesCache.find(x=>x.id===id);
+  if(!n){ return; }
+  $('#gnSheetHeading').textContent = (id==='new') ? 'New note' : 'Note';
+  $('#gnSheetMenu').classList.remove('show');
+  $('#gnSheetMenu').innerHTML = (id==='new') ? '' : `
+    <button class="cc-menu-item" data-gnsheet="attach">Attach to contact</button>
+    <button class="cc-menu-item danger" data-gnsheet="delete">Delete note</button>`;
+  $('#gnSheetMenuBtn').style.visibility = (id==='new') ? 'hidden' : '';
+  $('#gnSheetBody').innerHTML = `
+    <input class="gn-sheet-title-input" id="gnSheetTitle" type="text" placeholder="Title (optional)" value="${esc(n.title||'')}" autocomplete="off">
+    <textarea class="gn-sheet-area" id="gnSheetText" data-autogrow="1" placeholder="Write your note…">${esc(n.text||'')}</textarea>
+    <input class="gn-sheet-date" id="gnSheetDate" type="datetime-local" value="${toLocalInput(new Date(n.date))}">
+    <div class="gn-sheet-actions">
+      <button class="btn btn-primary" id="gnSheetSave">Save</button>
+      <button class="btn btn-ghost" id="gnSheetCancel">Cancel</button>
+    </div>`;
+  showSheet('#gnSheet');
+  setTimeout(()=>{
+    const ta=$('#gnSheetText'); if(ta) autoGrow(ta);
+    if(id==='new'){ const t=$('#gnSheetTitle'); if(t) t.focus(); }
+  },80);
+}
+function closeGeneralNoteSheet(){
+  hideSheet('#gnSheet');
+  $('#gnSheetMenu').classList.remove('show');
+  gnSheetId = null;
+}
+async function saveGeneralNoteSheet(){
+  const title=($('#gnSheetTitle').value||'').trim();
+  const text=($('#gnSheetText').value||'').trim();
+  const dtVal=$('#gnSheetDate').value;
+  const dateISO = dtVal ? new Date(dtVal).toISOString() : new Date().toISOString();
+  if(!title && !text){ toast('Add a title or some text first'); return; }
+  if(gnSheetId==='new'){
+    await db.generalNotes.add({title, text, date:dateISO, createdAt:Date.now()});
+    toast('Note saved');
+  } else {
+    await db.generalNotes.update(gnSheetId, {title, text, date:dateISO});
+    toast('Note updated');
+  }
+  await loadGeneralNotes();
+  closeGeneralNoteSheet();
+  renderGeneralNotes();
 }
 function openNewGeneralNote(){
-  gnEditingId='new';
-  const list=$('#generalNotesList'); if(!list) return;
-  // remove empty-state if present
-  const emptyEl=list.querySelector('.empty'); if(emptyEl) emptyEl.remove();
-  const card=document.createElement('div');
-  card.className='gn-card'; card.id='gnNewCard';
-  card.innerHTML=`
-    <textarea class="gn-edit-area" id="gnNewText" data-autogrow="1" placeholder="Your note…"></textarea>
-    <input class="gn-edit-date" type="datetime-local" id="gnNewDate" value="${toLocalInput(new Date())}">
-    <div class="gn-edit-actions">
-      <button class="btn btn-primary" data-gnact="savenew">Save</button>
-      <button class="btn btn-ghost" data-gnact="cancelnew">Cancel</button>
-    </div>`;
-  list.insertBefore(card, list.firstChild);
-  setTimeout(()=>{ const ta=$('#gnNewText'); if(ta){ ta.focus(); autoGrow(ta); } },50);
-}
-async function saveNewGeneralNote(text, dateISO){
-  if(!text.trim()) return;
-  await db.generalNotes.add({text:text.trim(), date:dateISO, createdAt:Date.now()});
-  await loadGeneralNotes();
-  gnEditingId=null;
-  renderGeneralNotes();
-  toast('Note saved');
-}
-async function saveGeneralNoteEdit(id, text, dateISO){
-  await db.generalNotes.update(id, {text:text.trim(), date:dateISO});
-  await loadGeneralNotes();
-  gnEditingId=null;
-  renderGeneralNotes();
-  toast('Note updated');
+  openGeneralNoteSheet('new');
 }
 async function deleteGeneralNote(id){
   if(!confirm('Delete this note?')) return;
   await db.generalNotes.delete(id);
   await loadGeneralNotes();
-  gnEditingId=null;
   renderGeneralNotes();
   toast('Note deleted');
 }
@@ -6797,12 +6836,15 @@ function renderContactPicker(term){
 }
 async function attachGeneralNote(contactId){
   const gn = generalNotesCache.find(n=>n.id===gnAttachingId); if(!gn) return;
-  await db.notesLog.add({contactId, text:gn.text, date:gn.date, createdAt:Date.now()});
+  const title=(gn.title||'').trim();
+  const combined = title ? (title + '\n' + (gn.text||'')) : (gn.text||'');
+  await db.notesLog.add({contactId, text:combined.trim(), date:gn.date, createdAt:Date.now()});
   await db.generalNotes.delete(gn.id);
   await loadAllNotes();
   await loadGeneralNotes();
   gnAttachingId=null;
   hideSheet('#contactPickerSheet');
+  closeGeneralNoteSheet();
   renderGeneralNotes();
   renderMarkers(); updateBadges();
   if(currentTab==='recent') renderRecent();
@@ -7391,7 +7433,7 @@ async function importJSON(file){
         try{
           await db.generalNotes.clear();
           await db.generalNotes.bulkAdd(data.generalNotes.map(gn=>({
-            id:gn.id, text:gn.text||'', date:gn.date||gn.createdAt||Date.now(), createdAt:gn.createdAt||Date.now()
+            id:gn.id, title:gn.title||'', text:gn.text||'', date:gn.date||gn.createdAt||Date.now(), createdAt:gn.createdAt||Date.now()
           })));
         }catch(e){ console.warn('generalNotes restore',e); }
       }
@@ -7483,8 +7525,8 @@ async function importCSV(file){
 /* ---------------- Sheet / drawer open-close ---------------- */
 function showSheet(sel){ $(sel).classList.add('show'); scrimFor(sel).classList.add('show'); }
 function hideSheet(sel){ $(sel).classList.remove('show'); scrimFor(sel).classList.remove('show'); }
-function scrimFor(sel){ if(sel==='#sheet') return $('#sheetScrim'); if(sel==='#cardSheet') return $('#cardScrim'); if(sel==='#contactPickerSheet') return $('#contactPickerScrim'); return $('#settingsScrim'); }
-function closeAllSheets(){ hideSheet('#sheet'); closeCard(); hideSheet('#settingsSheet'); hideSheet('#contactPickerSheet'); gnAttachingId=null; }
+function scrimFor(sel){ if(sel==='#sheet') return $('#sheetScrim'); if(sel==='#cardSheet') return $('#cardScrim'); if(sel==='#contactPickerSheet') return $('#contactPickerScrim'); if(sel==='#gnSheet') return $('#gnScrim'); return $('#settingsScrim'); }
+function closeAllSheets(){ hideSheet('#sheet'); closeCard(); hideSheet('#settingsSheet'); hideSheet('#contactPickerSheet'); hideSheet('#gnSheet'); gnAttachingId=null; gnSheetId=null; }
 function openDrawer(){ $('#drawer').classList.add('show'); $('#drawerScrim').classList.add('show'); renderMasterList(); }
 function closeDrawer(){ $('#drawer').classList.remove('show'); $('#drawerScrim').classList.remove('show'); }
 
@@ -7693,42 +7735,35 @@ function wire(){
     },{passive:true});
   })();
   // general notes add btn
-  $('#gnAddBtn').addEventListener('click',()=>{ if(gnEditingId!=='new') openNewGeneralNote(); });
-  // general notes list events
-  $('#generalNotesList').addEventListener('input',e=>{
+  $('#gnAddBtn').addEventListener('click',()=>{ openNewGeneralNote(); });
+  // general notes list — tap a card to open its detail sheet
+  $('#generalNotesList').addEventListener('click',e=>{
+    const btn=e.target.closest('[data-gnact="open"]'); if(!btn) return;
+    openGeneralNoteSheet(Number(btn.dataset.gnid));
+  });
+  // general note detail sheet
+  $('#gnScrim').addEventListener('click', closeGeneralNoteSheet);
+  $('#gnSheetClose').addEventListener('click', closeGeneralNoteSheet);
+  $('#gnSheetMenuBtn').addEventListener('click',(e)=>{
+    e.stopPropagation();
+    $('#gnSheetMenu').classList.toggle('show');
+  });
+  $('#gnSheet').addEventListener('input',e=>{
     const ta=e.target; if(ta && ta.dataset.autogrow) autoGrow(ta);
   });
-  $('#generalNotesList').addEventListener('click',async e=>{
-    const btn=e.target.closest('[data-gnact]'); if(!btn) return;
-    const act=btn.dataset.gnact;
-    // close any open menu when clicking elsewhere
-    if(act!=='menutoggle'){ $$('.gn-menu.show').forEach(m=>m.classList.remove('show')); }
-    if(act==='menutoggle'){
-      e.stopPropagation();
-      const id=btn.dataset.gnid;
-      const menu=$('#gnMenu-'+id);
-      const wasOpen=menu && menu.classList.contains('show');
-      $$('.gn-menu.show').forEach(m=>m.classList.remove('show'));
-      if(menu && !wasOpen) menu.classList.add('show');
-    } else if(act==='open'){
-      gnEditingId=Number(btn.dataset.gnid); renderGeneralNotes();
-    } else if(act==='edit'){
-      gnEditingId=Number(btn.dataset.gnid); renderGeneralNotes();
-    } else if(act==='cancel' || act==='cancelnew'){
-      gnEditingId=null;
-      if(act==='cancelnew'){ const c=$('#gnNewCard'); if(c) c.remove(); }
-      else renderGeneralNotes();
-    } else if(act==='save'){
-      const id=Number(btn.dataset.gnid);
-      const ta=$('#gnEditText'), dt=$('#gnEditDate'); if(!ta) return;
-      await saveGeneralNoteEdit(id, ta.value, dt ? new Date(dt.value).toISOString() : new Date().toISOString());
-    } else if(act==='savenew'){
-      const ta=$('#gnNewText'), dt=$('#gnNewDate'); if(!ta) return;
-      await saveNewGeneralNote(ta.value, dt ? new Date(dt.value).toISOString() : new Date().toISOString());
+  $('#gnSheet').addEventListener('click',async e=>{
+    if(!e.target.closest('#gnSheetMenu') && e.target.id!=='gnSheetMenuBtn' && !e.target.closest('#gnSheetMenuBtn')){
+      $('#gnSheetMenu').classList.remove('show');
+    }
+    if(e.target.id==='gnSheetSave'){ await saveGeneralNoteSheet(); return; }
+    if(e.target.id==='gnSheetCancel'){ closeGeneralNoteSheet(); return; }
+    const mi=e.target.closest('[data-gnsheet]'); if(!mi) return;
+    const act=mi.dataset.gnsheet;
+    if(act==='attach'){
+      if(gnSheetId && gnSheetId!=='new') openContactPicker(gnSheetId);
     } else if(act==='delete'){
-      await deleteGeneralNote(Number(btn.dataset.gnid));
-    } else if(act==='attach'){
-      openContactPicker(Number(btn.dataset.gnid));
+      const id=gnSheetId;
+      if(id && id!=='new'){ closeGeneralNoteSheet(); await deleteGeneralNote(id); }
     }
   });
   // contact picker
@@ -7911,14 +7946,13 @@ function wire(){
 }
 /* --- FAB menu helpers --- */
 function startQuickNote(){
-  // Jump to Notes → General Notes and open a fresh note editor.
+  // Jump to Notes → General Notes and open a fresh note editor sheet.
   switchTab('recent');
   notesSubTab='general';
   $$('.notes-subtab').forEach(b=>b.classList.toggle('active', b.dataset.subtab==='general'));
   $('#contactNotesPane').style.display='none';
   $('#generalNotesPane').style.display='';
   renderGeneralNotes();
-  if(typeof gnEditingId!=='undefined' && gnEditingId==='new') return;
   openNewGeneralNote();
 }
 function openFabMenu(){ $('#fabMenu').classList.add('show'); $('#fab').classList.add('open'); $('#fabScrim').classList.add('show'); }
