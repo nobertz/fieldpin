@@ -131,6 +131,8 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
   padding:16px 16px 10px;
   border-bottom:1px solid var(--hair);
 }
+/* Reach Out head scrolls away so the filter chips can pin to the top */
+.view-head.ro-head-static{position:static;border-bottom:none;}
 .view-head h2{margin:2px 0 2px;font-size:20px;letter-spacing:-.02em;font-weight:760;}
 .view-head p{margin:0;font-size:13px;color:var(--muted);}
 
@@ -421,10 +423,23 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 }
 .range-btn.active{background:var(--accent);color:var(--accent-ink);border-color:transparent;}
 #roFilterBar, #recentFilterBar{
-  display:flex;gap:7px;overflow-x:auto;padding:10px 14px 2px;
+  display:flex;gap:7px;overflow-x:auto;padding:10px 14px;
   scrollbar-width:none;-ms-overflow-style:none;
 }
 #roFilterBar::-webkit-scrollbar, #recentFilterBar::-webkit-scrollbar{display:none;}
+/* Sticky filter/range controls so they stay reachable while scrolling the list */
+#roFilterBar{
+  position:sticky;top:0;z-index:3;
+  background:var(--bg);border-bottom:1px solid var(--hair);
+}
+#recentRangeRow{
+  position:sticky;top:46px;z-index:5;
+  background:var(--bg);padding-top:12px;
+}
+#recentFilterBar{
+  position:sticky;top:91px;z-index:4;
+  background:var(--bg);border-bottom:1px solid var(--hair);
+}
 
 /* Reach Out head row */
 .ro-head-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
@@ -481,7 +496,8 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 .notes-subtab-bar{
   display:flex;gap:0;border-bottom:2px solid var(--hair-strong);
   background:var(--surface);
-  position:sticky;top:0;z-index:6;
+  position:sticky;top:0;z-index:7;
+  height:47px;box-sizing:border-box;
 }
 .notes-subtab{
   flex:1;padding:13px 8px;font-size:14px;font-weight:700;color:var(--muted);
@@ -806,7 +822,7 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
   </section>
 
   <section id="reachOutView" class="view list-view">
-    <div class="view-head" style="padding-bottom:4px;">
+    <div class="view-head ro-head-static" style="padding-bottom:4px;">
       <div class="ro-head-row">
         <div><h2>Reach Out</h2><p id="reachOutSub">Everyone to stay in touch with</p></div>
         <div class="ro-sort-wrap">
@@ -7106,10 +7122,10 @@ function ccNameEditHTML(c){
 function ccStatusHTML(c){
   return `<div class="cc-section">
     <span class="cc-label">Status</span>
-    <div class="cc-status-row">
+    <div class="cc-status-row" id="cc_statusRow">
       ${settings.colors.map(sc=>`<button class="cc-dot${sc.key===c.color?' sel':''}" data-cc-act="setcolor" data-color="${sc.key}" style="background:${sc.hex}" aria-label="${esc(sc.label)}"></button>`).join('')}
     </div>
-    <div class="cc-status-current">${esc(colorByKey(c.color).label)}</div>
+    <div class="cc-status-current" id="cc_statusLabel">${esc(colorByKey(c.color).label)}</div>
   </div>`;
 }
 function ccNoteEntryHTML(n){
@@ -7787,7 +7803,15 @@ function wire(){
 
     if(act==='menutoggle'){ $('#cc_menu').classList.toggle('show'); }
     else if(act==='editname'){ cardEditingField='name'; renderCard(); }
-    else if(act==='setcolor'){ await cardSave({color:btn.dataset.color}); renderCard(); }
+    else if(act==='setcolor'){
+      const newColor=btn.dataset.color;
+      await cardSave({color:newColor});
+      // Update the dots + label in place so an in-progress note editor
+      // (its textarea text) is not wiped by a full re-render.
+      const row=$('#cc_statusRow');
+      if(row){ row.querySelectorAll('.cc-dot').forEach(d=>d.classList.toggle('sel', d.dataset.color===newColor)); }
+      const lbl=$('#cc_statusLabel'); if(lbl) lbl.textContent = colorByKey(newColor).label;
+    }
     else if(act==='adddm'){ cardEditingField='dmNew'; renderCard(); }
     else if(act==='editdm'){ cardEditingField='dm:'+btn.dataset.dmIdx; renderCard(); }
     else if(act==='savedm'){ await ccSaveDm(); }
