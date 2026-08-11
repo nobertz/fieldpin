@@ -366,7 +366,7 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 .btn-row{display:flex;gap:9px;}
 .btn-row .btn{flex:1;}
 
-/* ---------- Cards (HubSpot / Recent) ---------- */
+/* ---------- Cards (Contact Notes / Recent) ---------- */
 .cards{padding:12px 14px 0;display:flex;flex-direction:column;gap:11px;}
 .card{
   background:var(--surface);border:1px solid var(--hair);border-radius:var(--r);
@@ -394,7 +394,7 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 .card.overdue{border-color:rgba(244,194,13,.6);}
 .section-label{padding:16px 16px 4px;}
 
-/* ---------- HubSpot quick-check list ---------- */
+/* ---------- Reach Out + Notes tabs ---------- */
 .range-row{
   display:flex;gap:6px;padding:10px 14px 2px;overflow-x:auto;
   scrollbar-width:none;-ms-overflow-style:none;
@@ -406,29 +406,99 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
   font-size:13px;font-weight:650;color:var(--muted);white-space:nowrap;
 }
 .range-btn.active{background:var(--accent);color:var(--accent-ink);border-color:transparent;}
-#hsFilterBar, #recentFilterBar{
+#roFilterBar, #recentFilterBar{
   display:flex;gap:7px;overflow-x:auto;padding:10px 14px 2px;
   scrollbar-width:none;-ms-overflow-style:none;
 }
-#hsFilterBar::-webkit-scrollbar, #recentFilterBar::-webkit-scrollbar{display:none;}
-.hs-list{padding:4px 14px 0;display:flex;flex-direction:column;}
-.hs-row{
+#roFilterBar::-webkit-scrollbar, #recentFilterBar::-webkit-scrollbar{display:none;}
+
+/* Reach Out head row */
+.ro-head-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.ro-sort-wrap{flex:0 0 auto;padding-top:4px;}
+.ro-sort-sel{
+  border:1px solid var(--hair-strong);border-radius:8px;padding:6px 10px;
+  font-size:13px;font-weight:600;background:var(--surface-2);color:var(--ink);
+  -webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 8px center;padding-right:26px;
+}
+
+/* Bulk action bar */
+.ro-bulk-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;background:var(--surface-2);border-bottom:1px solid var(--hair-strong);
+  gap:10px;
+}
+#roBulkCount{font-size:13.5px;font-weight:650;color:var(--ink);}
+.btn-danger{background:#E0322F;color:#fff;border:none;}
+.btn-danger:active{background:#b82725;}
+
+/* Reach Out list rows */
+.ro-list{padding:4px 14px 0;display:flex;flex-direction:column;}
+.ro-row{
   display:flex;align-items:center;gap:10px;
-  padding:15px 2px;border-bottom:1px solid var(--hair);
+  padding:13px 2px;border-bottom:1px solid var(--hair);
   transition:opacity .26s ease, transform .26s ease, max-height .26s ease, padding .26s ease;
   overflow:hidden;
 }
-.hs-row:last-child{border-bottom:none;}
-.hs-row.removing{opacity:0;transform:translateX(40px);max-height:0!important;padding-top:0;padding-bottom:0;border-bottom:none;}
-.hs-open{
+.ro-row:last-child{border-bottom:none;}
+.ro-row.removing{opacity:0;transform:translateX(40px);max-height:0!important;padding-top:0;padding-bottom:0;border-bottom:none;}
+.ro-check{width:22px;height:22px;flex:0 0 auto;accent-color:var(--accent);}
+.ro-open{
   flex:1;min-width:0;display:flex;align-items:center;gap:11px;
   background:none;border:none;padding:0;text-align:left;
 }
-.hs-open:active{opacity:.55;}
-.hs-dot{width:14px;height:14px;border-radius:50%;flex:0 0 auto;box-shadow:0 0 0 1px var(--hair-strong) inset;}
-.hs-name{font-size:15.5px;font-weight:650;color:var(--ink);display:flex;align-items:center;gap:8px;min-width:0;flex:1;}
-.hs-name .od-tag{flex:0 0 auto;}
-.hs-check{width:23px;height:23px;flex:0 0 auto;accent-color:var(--accent);}
+.ro-open:active{opacity:.55;}
+.ro-dot{width:13px;height:13px;border-radius:50%;flex:0 0 auto;box-shadow:0 0 0 1px var(--hair-strong) inset;}
+.ro-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+.ro-name{font-size:15.5px;font-weight:650;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ro-meta{font-size:11.5px;color:var(--muted);}
+.ro-preview{font-size:13px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* Notes sub-tabs */
+.notes-subtab-bar{
+  display:flex;gap:0;border-bottom:2px solid var(--hair-strong);
+  background:var(--surface);
+}
+.notes-subtab{
+  flex:1;padding:13px 8px;font-size:14px;font-weight:700;color:var(--muted);
+  background:none;border:none;border-bottom:2px solid transparent;
+  margin-bottom:-2px;letter-spacing:-.01em;
+}
+.notes-subtab.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+/* General notes */
+.gn-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px 4px;}
+.gn-sub{font-size:13px;color:var(--muted);}
+.gn-add-btn{padding:9px 14px;font-size:13.5px;border-radius:10px;}
+.gn-list{padding:4px 14px 80px;display:flex;flex-direction:column;gap:10px;}
+.gn-card{
+  background:var(--surface);border:1px solid var(--hair);border-radius:var(--r);
+  box-shadow:var(--shadow-sm);padding:13px 14px;
+}
+.gn-card-date{font-size:11.5px;color:var(--muted);margin-bottom:6px;}
+.gn-card-text{font-size:14px;line-height:1.5;color:var(--ink);white-space:pre-wrap;word-break:break-word;}
+.gn-card-actions{display:flex;gap:10px;margin-top:10px;}
+.gn-card-actions button{font-size:13px;padding:7px 12px;border-radius:8px;}
+.gn-edit-area{width:100%;font-size:14px;line-height:1.5;padding:8px;border:1px solid var(--hair-strong);border-radius:8px;background:var(--surface-2);color:var(--ink);resize:none;min-height:80px;}
+.gn-edit-date{font-size:13px;padding:6px 10px;border:1px solid var(--hair-strong);border-radius:8px;background:var(--surface-2);color:var(--ink);margin-top:8px;width:100%;}
+.gn-edit-actions{display:flex;gap:8px;margin-top:8px;}
+.gn-edit-actions button{font-size:13px;padding:8px 14px;border-radius:8px;}
+
+/* Contact picker sheet */
+#contactPickerSheet .sheet-body{padding:0 0 24px;}
+.cp-search{width:100%;padding:11px 14px;font-size:15px;border:none;border-bottom:1px solid var(--hair-strong);background:var(--surface-2);color:var(--ink);}
+.cp-search:focus{outline:none;}
+.cp-list{display:flex;flex-direction:column;}
+.cp-item{
+  display:flex;align-items:center;gap:11px;
+  padding:13px 14px;border-bottom:1px solid var(--hair);
+  background:none;border-left:none;border-right:none;border-top:none;
+  text-align:left;font-size:15px;font-weight:600;color:var(--ink);
+}
+.cp-item:last-child{border-bottom:none;}
+.cp-item:active{background:var(--surface-2);}
+.cp-dot{width:12px;height:12px;border-radius:50%;flex:0 0 auto;}
 
 /* ---------- Settings ---------- */
 .set-group{margin-bottom:22px;}
@@ -679,28 +749,49 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
     </button>
   </section>
 
-  <section id="hubspotView" class="view list-view">
-    <div class="view-head"><h2>HubSpot check</h2><p id="hubspotSub">Contacts not yet entered in the CRM</p></div>
-    <div class="range-row" id="hsRangeRow">
-      <button class="range-btn" data-range="today">Today</button>
-      <button class="range-btn" data-range="week">This week</button>
-      <button class="range-btn" data-range="month">This month</button>
-      <button class="range-btn active" data-range="all">All</button>
+  <section id="reachOutView" class="view list-view">
+    <div class="view-head" style="padding-bottom:4px;">
+      <div class="ro-head-row">
+        <div><h2>Reach Out</h2><p id="reachOutSub">Everyone to stay in touch with</p></div>
+        <div class="ro-sort-wrap">
+          <select id="roSortSel" class="ro-sort-sel" aria-label="Sort order">
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="color">By status</option>
+          </select>
+        </div>
+      </div>
     </div>
-    <div id="hsFilterBar"></div>
-    <div class="hs-list" id="hubspotList"></div>
+    <div id="roFilterBar"></div>
+    <div class="ro-bulk-bar" id="roBulkBar" style="display:none;">
+      <span id="roBulkCount">0 selected</span>
+      <button class="btn btn-danger" id="roBulkRemove">Remove from Reach Out</button>
+    </div>
+    <div class="ro-list" id="reachOutList"></div>
   </section>
 
-  <section id="recentView" class="view list-view">
-    <div class="view-head"><h2>Recent notes</h2><p id="recentSub">Newest first · overdue follow-ups on top</p></div>
-    <div class="range-row" id="recentRangeRow">
-      <button class="range-btn" data-range="today">Today</button>
-      <button class="range-btn" data-range="week">This week</button>
-      <button class="range-btn" data-range="month">This month</button>
-      <button class="range-btn active" data-range="all">All</button>
+  <section id="recentView" class="view list-view" style="padding:0;">
+    <div class="notes-subtab-bar">
+      <button class="notes-subtab active" data-subtab="contact">Contact Notes</button>
+      <button class="notes-subtab" data-subtab="general">General Notes</button>
     </div>
-    <div id="recentFilterBar"></div>
-    <div class="cards" id="recentList"></div>
+    <div id="contactNotesPane">
+      <div class="range-row" id="recentRangeRow">
+        <button class="range-btn" data-range="today">Today</button>
+        <button class="range-btn" data-range="week">This week</button>
+        <button class="range-btn" data-range="month">This month</button>
+        <button class="range-btn active" data-range="all">All</button>
+      </div>
+      <div id="recentFilterBar"></div>
+      <div class="cards" id="recentList"></div>
+    </div>
+    <div id="generalNotesPane" style="display:none;">
+      <div class="gn-header">
+        <p class="gn-sub">Quick notes not tied to a contact</p>
+        <button class="btn btn-primary gn-add-btn" id="gnAddBtn">+ New note</button>
+      </div>
+      <div class="gn-list" id="generalNotesList"></div>
+    </div>
   </section>
 </div>
 
@@ -720,10 +811,10 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 </button>
 
 <nav id="bottomNav">
-  <button class="nav-btn" data-tab="hubspot">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-    <span>HubSpot</span>
-    <span class="nav-badge" id="hubspotBadge">0</span>
+  <button class="nav-btn" data-tab="reachout">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    <span>Reach Out</span>
+    <span class="nav-badge" id="reachOutBadge">0</span>
   </button>
   <button class="nav-btn active" data-tab="map">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s7-6.6 7-12a7 7 0 1 0-14 0c0 5.4 7 12 7 12z"/><circle cx="12" cy="9" r="2.4"/></svg>
@@ -766,7 +857,7 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
       <div id="f_dmAddWrap"></div>
     </div>
     <div class="cc-section">
-      <span class="cc-label">Status <span style="color:var(--danger)">*</span></span>
+      <span class="cc-label">Status</span>
       <div class="cc-status-row" id="f_swatches"></div>
       <div class="cc-status-current" id="f_swatchLabel"></div>
     </div>
@@ -791,14 +882,6 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
       </div>
       <button class="cc-clear-link" id="f_followClear" type="button" style="display:none;">Remove follow-up</button>
     </div>
-    <div class="cc-section">
-      <div class="cc-check-row">
-        <label class="cc-check-tap" id="f_hubRow">
-          <input type="checkbox" id="f_hub" tabindex="-1">
-          <span>Entered in HubSpot</span>
-        </label>
-      </div>
-    </div>
   </div>
   <div class="sheet-foot" id="sheetFoot"></div>
 </div>
@@ -820,6 +903,21 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
     </div>
   </div>
   <div class="cc-body" id="cc_body"></div>
+</div>
+
+<!-- Contact picker sheet (for attaching general notes) -->
+<div class="scrim" id="contactPickerScrim"></div>
+<div class="sheet" id="contactPickerSheet">
+  <div class="sheet-grab"></div>
+  <div class="sheet-head"><h2>Attach to contact</h2>
+    <button class="icon-btn" id="contactPickerClose" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body" style="padding:0;">
+    <input class="cp-search" id="cpSearch" type="text" placeholder="Search contacts…" autocomplete="off">
+    <div class="cp-list" id="cpList"></div>
+  </div>
 </div>
 
 <!-- Settings sheet -->
@@ -6115,6 +6213,21 @@ db.version(3).stores({
     }
   }
 });
+db.version(4).stores({
+  contacts: '++id, businessName, color, reachOut, followUpDate, createdAt, latitude, longitude',
+  notesLog: '++id, contactId, date, createdAt',
+  generalNotes: '++id, date, createdAt',
+  meta: 'key'
+}).upgrade(async tx => {
+  // Add reachOut=1 to all existing contacts; fix missing color to 'gray'
+  const all = await tx.table('contacts').toArray();
+  for(const c of all){
+    const u = {};
+    if(c.reachOut === undefined || c.reachOut === null) u.reachOut = 1;
+    if(!c.color) u.color = 'gray';
+    if(Object.keys(u).length) await tx.table('contacts').update(c.id, u);
+  }
+});
 
 const DEFAULT_COLORS = [
   {key:'green',  label:'Interested',        hex:'#1E9E4A'},
@@ -6122,7 +6235,8 @@ const DEFAULT_COLORS = [
   {key:'red',    label:'Rejected',          hex:'#E0322F'},
   {key:'blue',   label:'No Decision Maker', hex:'#2563EB'},
   {key:'yellow', label:'Call Back',         hex:'#F4C20D'},
-  {key:'purple', label:'Other',             hex:'#7C3AED'}
+  {key:'purple', label:'Other',             hex:'#7C3AED'},
+  {key:'gray',   label:'Unassigned',        hex:'#9CA3AF'}
 ];
 const DEFAULT_CENTER = [41.7370, -111.8338]; // Logan, UT — Cache Valley
 const DEFAULT_ZOOM = 13;
@@ -6132,9 +6246,13 @@ let contacts = [];                 // in-memory cache of all contacts
 let allNotes = [];                 // in-memory cache of every note-history entry, all contacts
 const markers = new Map();         // id -> {marker, infoWindow}
 let activeFilters = new Set();      // empty = ALL
-let hsFilters = new Set();          // empty = ALL (HubSpot tab color filter)
+let roFilters = new Set();          // empty = ALL (Reach Out tab color filter)
 let recentFilters = new Set();      // empty = ALL (Notes tab color filter)
-let hsRange = 'all';                // 'all' | 'today' | 'week' | 'month' (HubSpot tab)
+let filterReachOut = false;         // show only reach-out contacts on map/notes
+let reachOutSort = 'newest';        // 'newest' | 'oldest' | 'color'
+let selectedReachOutIds = new Set(); // bulk-remove selection
+let notesSubTab = 'contact';        // 'contact' | 'general'
+let generalNotesCache = [];         // in-memory cache of generalNotes table
 let recentRange = 'all';            // 'all' | 'today' | 'week' | 'month' (Notes tab)
 let currentTab = 'map';
 let place = { active:false, id:null, pickFirst:false };
@@ -6213,14 +6331,17 @@ async function loadSettings(){
     if(rec && rec.value){
       settings.theme = rec.value.theme || 'light';
       if(Array.isArray(rec.value.colors)){
-        // merge stored over defaults by key (keeps schema stable)
+        // merge stored over defaults by key (keeps schema stable, picks up gray if added)
         settings.colors = DEFAULT_COLORS.map(d=>{
           const s = rec.value.colors.find(c=>c.key===d.key);
           return s ? {key:d.key, label:s.label||d.label, hex:s.hex||d.hex} : {...d};
         });
       }
-      if(Array.isArray(rec.value.hsFilters)){
-        hsFilters = new Set(rec.value.hsFilters);
+      if(Array.isArray(rec.value.roFilters)){
+        roFilters = new Set(rec.value.roFilters);
+      }
+      if(typeof rec.value.filterReachOut === 'boolean'){
+        filterReachOut = rec.value.filterReachOut;
       }
       if(Array.isArray(rec.value.recentFilters)){
         recentFilters = new Set(rec.value.recentFilters);
@@ -6229,7 +6350,7 @@ async function loadSettings(){
   }catch(e){ console.warn('settings load',e); }
 }
 async function saveSettings(){ try{ await db.meta.put({key:'settings', value: JSON.parse(JSON.stringify(settings))}); }catch(e){console.warn(e);} }
-async function saveHsFilters(){ settings.hsFilters = Array.from(hsFilters); await saveSettings(); }
+async function saveRoFilters(){ settings.roFilters = Array.from(roFilters); settings.filterReachOut = filterReachOut; await saveSettings(); }
 async function saveRecentFilters(){ settings.recentFilters = Array.from(recentFilters); await saveSettings(); }
 
 function applyTheme(){
@@ -6298,7 +6419,7 @@ function popupHTML(c){
     <div class="fp-pop-meta">
       <div><span class="k">Last visit</span><span class="v">${latest?esc(fmtDateTime(latest.date)):'—'}</span></div>
       <div><span class="k">Follow-up</span><span class="v">${c.followUpDate?esc(fmtDate(c.followUpDate)):'—'}${od?' <span class="od">⚠ Overdue</span>':''}</span></div>
-      <div><span class="k">HubSpot</span><span class="v">${c.hubspotEntered?'Entered':'Not entered'}</span></div>
+      <div><span class="k">Reach Out</span><span class="v">${c.reachOut?'On list':'Removed'}</span></div>
     </div>
     <div class="fp-pop-actions">
       <button class="fp-pop-move" onclick="FP.move(${c.id})">Move pin</button>
@@ -6306,7 +6427,7 @@ function popupHTML(c){
     </div>
   </div>`;
 }
-function visibleByFilter(c){ return activeFilters.size===0 || activeFilters.has(c.color); }
+function visibleByFilter(c){ if(filterReachOut && !c.reachOut) return false; return activeFilters.size===0 || activeFilters.has(c.color); }
 
 function renderMarkers(){
   markers.forEach(({marker,iw})=>{ iw.close(); marker.map=null; });
@@ -6325,7 +6446,7 @@ function focusContact(id){
   const c = contacts.find(x=>x.id===id); if(!c) return;
   if(!isPinned(c)){ enterPlaceMode(id); return; }
   switchTab('map');
-  if(!visibleByFilter(c)){ activeFilters.clear(); renderFilterBar(); renderMarkers(); }
+  if(!visibleByFilter(c)){ activeFilters.clear(); filterReachOut=false; renderFilterBar(); renderMarkers(); }
   map.panTo({lat:c.latitude,lng:c.longitude});
   if(map.getZoom()<16) map.setZoom(16);
   const m=markers.get(id);
@@ -6401,11 +6522,11 @@ function switchTab(tab){
   currentTab = tab;
   closeFabMenu();
   $$('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
-  $('#hubspotView').classList.toggle('active', tab==='hubspot');
+  $('#reachOutView').classList.toggle('active', tab==='reachout');
   $('#recentView').classList.toggle('active', tab==='recent');
   $('#mapOverlays').style.display = tab==='map' ? '' : 'none';
   $('#recenterBtn').style.display = tab==='map' ? '' : 'none';
-  if(tab==='hubspot'){ renderHsFilterBar(); renderHubspot(); }
+  if(tab==='reachout'){ renderRoFilterBar(); renderReachOut(); }
   if(tab==='recent'){ renderRecentFilterBar(); renderRecent(); }
   if(tab==='map' && map) google.maps.event.trigger(map,'resize');
 }
@@ -6413,63 +6534,205 @@ function switchTab(tab){
 /* ---------------- Filter bar ---------------- */
 function renderFilterBar(){
   const bar=$('#filterBar');
-  const allActive = activeFilters.size===0;
+  const allActive = activeFilters.size===0 && !filterReachOut;
   let html=`<button class="chip all${allActive?' active':''}" data-all="1">All pins</button>`;
   settings.colors.forEach(c=>{
     const on=activeFilters.has(c.key);
     html+=`<button class="chip${on?' active':''}" data-color="${c.key}" style="${on?`background:${c.hex}`:''}">
       <span class="dot" style="background:${on?'#fff':c.hex}"></span>${esc(c.label)}</button>`;
   });
+  html+=`<button class="chip${filterReachOut?' active':''}" data-reachout="1" style="${filterReachOut?'background:var(--accent);color:var(--accent-ink);':''}">
+    📋 Reach Out</button>`;
   bar.innerHTML=html;
 }
-function renderHsFilterBar(){
-  const bar=$('#hsFilterBar'); if(!bar) return;
-  const allActive = hsFilters.size===0;
+/* ---------------- Reach Out tab ---------------- */
+function roRowHTML(c){
+  const col = colorByKey(c.color);
+  const latest = latestNoteFor(c.id);
+  const od = isOverdue(c);
+  const visitStr = latest ? fmtDateTime(latest.date) : 'No visits yet';
+  const preview = latest ? truncate(latest.text, 60) : '';
+  const checked = selectedReachOutIds.has(c.id);
+  return `<div class="ro-row" data-id="${c.id}">
+    <input type="checkbox" class="ro-check" data-act="roselect" data-id="${c.id}" ${checked?'checked':''}>
+    <button class="ro-open" data-act="roview" data-id="${c.id}">
+      <span class="ro-dot" style="background:${col.hex}"></span>
+      <div class="ro-info">
+        <span class="ro-name">${od?'<span class="od-tag" style="font-size:10px;padding:2px 6px;">⚠</span> ':''} ${esc(c.businessName||'Untitled contact')}</span>
+        <span class="ro-meta">${esc(col.label)} · ${esc(visitStr)}</span>
+        ${preview ? `<span class="ro-preview">${esc(preview)}</span>` : ''}
+      </div>
+    </button>
+  </div>`;
+}
+function renderRoFilterBar(){
+  const bar=$('#roFilterBar'); if(!bar) return;
+  const allActive = roFilters.size===0;
   let html=`<button class="chip all${allActive?' active':''}" data-all="1">All colors</button>`;
   settings.colors.forEach(c=>{
-    const on=hsFilters.has(c.key);
+    const on=roFilters.has(c.key);
     html+=`<button class="chip${on?' active':''}" data-color="${c.key}" style="${on?`background:${c.hex}`:''}">
       <span class="dot" style="background:${on?'#fff':c.hex}"></span>${esc(c.label)}</button>`;
   });
   bar.innerHTML=html;
 }
-
-/* ---------------- HubSpot tab ---------------- */
-function hsRowHTML(c){
-  const od = isOverdue(c), col = colorByKey(c.color);
-  return `<div class="hs-row" data-id="${c.id}">
-    <button class="hs-open" data-act="hsview" data-id="${c.id}">
-      <span class="hs-dot" style="background:${col.hex}"></span>
-      <span class="hs-name">${od?'<span class="od-tag">⚠ Overdue</span>':''}${esc(c.businessName||'Untitled contact')}</span>
-    </button>
-    <input type="checkbox" class="hs-check" data-act="done" data-id="${c.id}">
-  </div>`;
+function updateRoBulkBar(){
+  const bar=$('#roBulkBar'); if(!bar) return;
+  const count=selectedReachOutIds.size;
+  bar.style.display = count>0 ? '' : 'none';
+  const bc=$('#roBulkCount'); if(bc) bc.textContent = `${count} selected`;
 }
-function renderHubspot(){
-  const list=$('#hubspotList');
-  const items = contacts.filter(c=>!c.hubspotEntered)
-                        .filter(c=>hsFilters.size===0 || hsFilters.has(c.color))
-                        .filter(c=>inDateRange(latestVisitDate(c), hsRange))
-                        .sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-  $('#hubspotSub').textContent = items.length
-    ? `${items.length} contact${items.length>1?'s':''} waiting to be entered`
-    : 'All caught up';
+function renderReachOut(){
+  const list=$('#reachOutList'); if(!list) return;
+  let items = contacts.filter(c=>c.reachOut)
+                      .filter(c=>roFilters.size===0 || roFilters.has(c.color));
+  // Sort
+  if(reachOutSort==='newest'){
+    items.sort((a,b)=>{
+      const ad=latestVisitDate(a)||'', bd=latestVisitDate(b)||'';
+      return bd.localeCompare(ad);
+    });
+  } else if(reachOutSort==='oldest'){
+    items.sort((a,b)=>{
+      const ad=latestVisitDate(a)||'9999', bd=latestVisitDate(b)||'9999';
+      return ad.localeCompare(bd);
+    });
+  } else if(reachOutSort==='color'){
+    items.sort((a,b)=>(a.color||'').localeCompare(b.color||''));
+  }
+  const sub=$('#reachOutSub');
+  if(sub) sub.textContent = items.length
+    ? `${items.length} contact${items.length>1?'s':''} on your list`
+    : 'No contacts on your list';
   if(!items.length){
-    list.innerHTML = `<div class="empty"><div class="big">Inbox zero 🎉</div><div class="sm">Every contact has been entered in HubSpot. New notes you save will land here for your end-of-day review.</div></div>`;
+    list.innerHTML=`<div class="empty"><div class="big">All clear 🎉</div><div class="sm">No contacts on your Reach Out list. New contacts are added automatically.</div></div>`;
     return;
   }
-  list.innerHTML = items.map(hsRowHTML).join('');
+  list.innerHTML = items.map(roRowHTML).join('');
+  updateRoBulkBar();
+}
+
+/* ---------------- General Notes tab ---------------- */
+let gnEditingId = null;   // id of generalNote currently being edited, or 'new'
+let gnAttachingId = null; // generalNote id being attached to a contact
+
+function renderGeneralNotes(){
+  const list=$('#generalNotesList'); if(!list) return;
+  const sorted=[...generalNotesCache].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  if(!sorted.length){
+    list.innerHTML=`<div class="empty" style="padding:24px 0;"><div class="big">No general notes</div><div class="sm">Tap + New note to jot something down without attaching it to a contact.</div></div>`;
+    return;
+  }
+  list.innerHTML = sorted.map(n=>{
+    if(gnEditingId===n.id){
+      return `<div class="gn-card" data-gnid="${n.id}">
+        <textarea class="gn-edit-area" id="gnEditText" data-autogrow="1">${esc(n.text)}</textarea>
+        <input class="gn-edit-date" type="datetime-local" id="gnEditDate" value="${toLocalInput(new Date(n.date))}">
+        <div class="gn-edit-actions">
+          <button class="btn btn-primary" data-gnact="save" data-gnid="${n.id}">Save</button>
+          <button class="btn btn-ghost" data-gnact="cancel" data-gnid="${n.id}">Cancel</button>
+        </div>
+      </div>`;
+    }
+    return `<div class="gn-card" data-gnid="${n.id}">
+      <div class="gn-card-date">${fmtDateTime(n.date)}</div>
+      <div class="gn-card-text">${esc(n.text)}</div>
+      <div class="gn-card-actions">
+        <button class="btn btn-secondary" data-gnact="edit" data-gnid="${n.id}">Edit</button>
+        <button class="btn btn-secondary" data-gnact="attach" data-gnid="${n.id}">Attach to contact</button>
+        <button class="btn btn-ghost" data-gnact="delete" data-gnid="${n.id}" style="color:var(--danger);">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+  // Wire autogrow for edit textarea
+  setTimeout(()=>{const ta=$('#gnEditText'); if(ta) autoGrow(ta);},30);
+}
+function openNewGeneralNote(){
+  gnEditingId='new';
+  const list=$('#generalNotesList'); if(!list) return;
+  const card=document.createElement('div');
+  card.className='gn-card'; card.id='gnNewCard';
+  card.innerHTML=`
+    <textarea class="gn-edit-area" id="gnNewText" placeholder="Your note…"></textarea>
+    <input class="gn-edit-date" type="datetime-local" id="gnNewDate" value="${toLocalInput(new Date())}">
+    <div class="gn-edit-actions">
+      <button class="btn btn-primary" data-gnact="savenew">Save</button>
+      <button class="btn btn-ghost" data-gnact="cancelnew">Cancel</button>
+    </div>`;
+  list.insertBefore(card, list.firstChild);
+  setTimeout(()=>{ const ta=$('#gnNewText'); if(ta){ ta.focus(); autoGrow(ta); } },50);
+}
+async function saveNewGeneralNote(text, dateISO){
+  if(!text.trim()) return;
+  await db.generalNotes.add({text:text.trim(), date:dateISO, createdAt:Date.now()});
+  await loadGeneralNotes();
+  gnEditingId=null;
+  renderGeneralNotes();
+  toast('Note saved');
+}
+async function saveGeneralNoteEdit(id, text, dateISO){
+  await db.generalNotes.update(id, {text:text.trim(), date:dateISO});
+  await loadGeneralNotes();
+  gnEditingId=null;
+  renderGeneralNotes();
+  toast('Note updated');
+}
+async function deleteGeneralNote(id){
+  if(!confirm('Delete this note?')) return;
+  await db.generalNotes.delete(id);
+  await loadGeneralNotes();
+  gnEditingId=null;
+  renderGeneralNotes();
+  toast('Note deleted');
+}
+function openContactPicker(gnId){
+  gnAttachingId=gnId;
+  renderContactPicker('');
+  showSheet('#contactPickerSheet');
+  setTimeout(()=>{ const el=$('#cpSearch'); if(el) el.focus(); },300);
+}
+function renderContactPicker(term){
+  const items = contacts
+    .filter(c=> !term || (c.businessName||'').toLowerCase().includes(term.toLowerCase()))
+    .sort((a,b)=>(a.businessName||'').localeCompare(b.businessName||''));
+  const list=$('#cpList'); if(!list) return;
+  if(!items.length){
+    list.innerHTML=`<div class="empty" style="padding:18px;"><div class="sm">${term?'No matches':'No contacts yet'}</div></div>`;
+    return;
+  }
+  list.innerHTML=items.map(c=>{
+    const col=colorByKey(c.color);
+    return `<button class="cp-item" data-act="cpattach" data-id="${c.id}">
+      <span class="cp-dot" style="background:${col.hex}"></span>
+      ${esc(c.businessName||'Untitled')}
+    </button>`;
+  }).join('');
+}
+async function attachGeneralNote(contactId){
+  const gn = generalNotesCache.find(n=>n.id===gnAttachingId); if(!gn) return;
+  await db.notesLog.add({contactId, text:gn.text, date:gn.date, createdAt:Date.now()});
+  await db.generalNotes.delete(gn.id);
+  await loadAllNotes();
+  await loadGeneralNotes();
+  gnAttachingId=null;
+  hideSheet('#contactPickerSheet');
+  renderGeneralNotes();
+  renderMarkers(); updateBadges();
+  if(currentTab==='recent') renderRecent();
+  toast('Note attached to contact');
 }
 
 function renderRecentFilterBar(){
   const bar=$('#recentFilterBar'); if(!bar) return;
-  const allActive = recentFilters.size===0;
+  const allActive = recentFilters.size===0 && !filterReachOut;
   let html=`<button class="chip all${allActive?' active':''}" data-all="1">All colors</button>`;
   settings.colors.forEach(c=>{
     const on=recentFilters.has(c.key);
     html+=`<button class="chip${on?' active':''}" data-color="${c.key}" style="${on?`background:${c.hex}`:''}">
       <span class="dot" style="background:${on?'#fff':c.hex}"></span>${esc(c.label)}</button>`;
   });
+  html+=`<button class="chip${filterReachOut?' active':''}" data-reachout="1" style="${filterReachOut?'background:var(--accent);color:var(--accent-ink);':''}">
+    📋 Reach Out</button>`;
   bar.innerHTML=html;
 }
 
@@ -6481,6 +6744,7 @@ function renderRecent(){
     return;
   }
   const filtered = contacts
+    .filter(c=>!filterReachOut || c.reachOut)
     .filter(c=>recentFilters.size===0 || recentFilters.has(c.color))
     .filter(c=>inDateRange(latestVisitDate(c), recentRange));
   if(!filtered.length){
@@ -6505,7 +6769,7 @@ function cardHTML(c,opts){
   if(latest) metaBits.push(`<span class="meta-item">Last visit <b>${esc(fmtDateTime(latest.date))}</b></span>`);
   if(c.followUpDate) metaBits.push(`<span class="meta-item">Follow-up <b>${esc(fmtDate(c.followUpDate))}</b></span>`);
   metaBits.push(`<span class="meta-item">${pinned?'📍 Pinned':'Unpinned'}</span>`);
-  if(opts.recent) metaBits.push(`<span class="meta-item">${c.hubspotEntered?'In HubSpot':'Not in HubSpot'}</span>`);
+  if(opts.recent) metaBits.push(`<span class="meta-item">${c.reachOut?'📋 Reach Out':'Removed'}</span>`);
   let foot='';
   if(opts.recent){
     foot=`<div class="card-foot">`;
@@ -6585,14 +6849,13 @@ function renderFormDMs(){
     : `<button class="cc-addlink" type="button" data-dmact="add">+ Add ${formDecisionMakers.length?'another':'decision maker'}</button>`;
 }
 function openSheet(withPin){
-  formColor = null;
+  formColor = 'gray';
   formDecisionMakers = []; formDmEditing = null;
   $('#sheetTitle').textContent = 'New note';
   $('#f_name').value = '';
   $('#f_notes').value = '';
   $('#f_notes').style.height = '';
   hideFollowField();
-  $('#f_hub').checked = false;
   $('#f_visit').value = toLocalInput(new Date());
   renderSwatches();
   renderFormDMs();
@@ -6625,16 +6888,15 @@ function hideFollowField(){
   $('#f_followClear').style.display='none';
 }
 function gatherForm(){
-  if(!formColor){ toast('Pick a status color first'); return null; }
   const visitVal=$('#f_visit').value;
   return {
     businessName: $('#f_name').value.trim(),
-    color: formColor,
+    color: formColor || 'gray',
     decisionMakers: formDecisionMakers.slice(),
     notes: $('#f_notes').value.trim(),
     visitDate: visitVal ? new Date(visitVal).toISOString() : null,
     followUpDate: $('#f_follow').value || null,
-    hubspotEntered: $('#f_hub').checked ? 1 : 0
+    reachOut: 1
   };
 }
 async function saveNewContact(data){
@@ -6685,7 +6947,7 @@ async function cardSave(patch){
   if(c) Object.assign(c, patch);
   renderMarkers(); updateBadges();
   if(currentTab==='recent') renderRecent();
-  if(currentTab==='hubspot') renderHubspot();
+  if(currentTab==='reachout') renderReachOut();
   if($('#drawer').classList.contains('show')) renderMasterList();
 }
 async function refreshNotesGlobal(){
@@ -6693,7 +6955,7 @@ async function refreshNotesGlobal(){
   cardNotes = getNotesFor(cardContactId);
   renderMarkers(); updateBadges();
   if(currentTab==='recent') renderRecent();
-  if(currentTab==='hubspot') renderHubspot();
+  if(currentTab==='reachout') renderReachOut();
   if($('#drawer').classList.contains('show')) renderMasterList();
 }
 async function ccAddNote(text, dateISO){
@@ -6855,16 +7117,7 @@ function ccDecisionMakersHTML(c){
     ${isNew ? ccDmEditRowHTML(null) : `<button class="cc-addlink" data-cc-act="adddm">+ Add ${dms.length?'another':'decision maker'}</button>`}
   </div>`;
 }
-function ccHubspotHTML(c){
-  return `<div class="cc-section">
-    <div class="cc-check-row">
-      <label class="cc-check-tap" data-cc-act="togglehub">
-        <input type="checkbox" ${c.hubspotEntered?'checked':''} tabindex="-1">
-        <span>Entered in HubSpot</span>
-      </label>
-    </div>
-  </div>`;
-}
+
 function ccFollowUpHTML(c){
   if(cardEditingField==='follow'){
     return `<div class="cc-section">
@@ -6906,7 +7159,6 @@ function renderCard(){
     ${ccDecisionMakersHTML(c)}
     ${ccStatusHTML(c)}
     ${ccMainNotesHTML(c)}
-    ${ccHubspotHTML(c)}
     ${ccFollowUpHTML(c)}
   `;
 
@@ -6978,7 +7230,7 @@ function download(filename, text, type){
 }
 function csvCell(v){ v=String(v==null?'':v); return /[",\n\r]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }
 function exportCSV(){
-  const headers=['Business Name','Status','Decision Maker(s)','Latest Note','Latest Visit','Total Notes','Follow-up Date','Entered in HubSpot','Latitude','Longitude','Created'];
+  const headers=['Business Name','Status','Decision Maker(s)','Latest Note','Latest Visit','Total Notes','Follow-up Date','On Reach Out List','Latitude','Longitude','Created'];
   const rows=contacts.map(c=>{
     const entries=getNotesFor(c.id), latest=entries[0];
     const dms = Array.isArray(c.decisionMakers) ? c.decisionMakers : [];
@@ -6987,7 +7239,7 @@ function exportCSV(){
       c.businessName||'', colorByKey(c.color).label, dmText,
       latest?latest.text:'', latest?new Date(latest.date).toLocaleString():'',
       entries.length,
-      c.followUpDate||'', c.hubspotEntered?'Yes':'No',
+      c.followUpDate||'', c.reachOut?'Yes':'No',
       c.latitude==null?'':c.latitude, c.longitude==null?'':c.longitude,
       c.createdAt?new Date(c.createdAt).toLocaleString():''
     ];
@@ -6997,7 +7249,7 @@ function exportCSV(){
   toast('CSV exported');
 }
 function exportJSON(){
-  const payload={ app:'FieldPin', schema:3, exportedAt:new Date().toISOString(), settings, contacts, notes:allNotes };
+  const payload={ app:'FieldPin', schema:4, exportedAt:new Date().toISOString(), settings, contacts, notes:allNotes, generalNotes:generalNotesCache };
   download(`fieldpin-backup-${todayYMD()}.json`, JSON.stringify(payload,null,2), 'application/json');
   toast('Backup created');
 }
@@ -7018,9 +7270,9 @@ async function importJSON(file){
           decisionMakers = [{name:c.decisionMaker, title:''}]; // legacy single-field backup
         }
         return {
-          id:c.id, businessName:c.businessName||'', color:c.color||'green',
+          id:c.id, businessName:c.businessName||'', color:c.color||'gray',
           decisionMakers, followUpDate:c.followUpDate||null,
-          hubspotEntered:c.hubspotEntered?1:0,
+          reachOut: (c.reachOut!==undefined) ? (c.reachOut?1:0) : 1,
           latitude:(c.latitude==null?null:c.latitude), longitude:(c.longitude==null?null:c.longitude),
           createdAt:c.createdAt||Date.now()
         };
@@ -7038,6 +7290,15 @@ async function importJSON(file){
       }
       if(noteRows.length) await db.notesLog.bulkAdd(noteRows);
 
+      // Restore general notes if present
+      if(Array.isArray(data.generalNotes) && data.generalNotes.length){
+        try{
+          await db.generalNotes.clear();
+          await db.generalNotes.bulkAdd(data.generalNotes.map(gn=>({
+            id:gn.id, text:gn.text||'', date:gn.date||gn.createdAt||Date.now(), createdAt:gn.createdAt||Date.now()
+          })));
+        }catch(e){ console.warn('generalNotes restore',e); }
+      }
       if(data.settings) await db.meta.put({key:'settings', value:data.settings});
     });
     await loadSettings(); applyTheme(); renderSwatches?.();
@@ -7095,7 +7356,7 @@ async function importCSV(file){
     dataRows=rows.slice(1);
   }
 
-  const defaultColor = (settings.colors[0] && settings.colors[0].key) || 'green';
+  const defaultColor = 'gray';
   let added=0, skipped=0, pinned=0;
   const toAdd=[];
   for(const r of dataRows){
@@ -7109,7 +7370,7 @@ async function importCSV(file){
     }
     toAdd.push({
       businessName:name, color:defaultColor, decisionMakers:[],
-      followUpDate:null, hubspotEntered:0,
+      followUpDate:null, reachOut:1,
       latitude:lat, longitude:lng, createdAt:Date.now()
     });
     added++;
@@ -7126,14 +7387,15 @@ async function importCSV(file){
 /* ---------------- Sheet / drawer open-close ---------------- */
 function showSheet(sel){ $(sel).classList.add('show'); scrimFor(sel).classList.add('show'); }
 function hideSheet(sel){ $(sel).classList.remove('show'); scrimFor(sel).classList.remove('show'); }
-function scrimFor(sel){ if(sel==='#sheet') return $('#sheetScrim'); if(sel==='#cardSheet') return $('#cardScrim'); return $('#settingsScrim'); }
-function closeAllSheets(){ hideSheet('#sheet'); closeCard(); hideSheet('#settingsSheet'); }
+function scrimFor(sel){ if(sel==='#sheet') return $('#sheetScrim'); if(sel==='#cardSheet') return $('#cardScrim'); if(sel==='#contactPickerSheet') return $('#contactPickerScrim'); return $('#settingsScrim'); }
+function closeAllSheets(){ hideSheet('#sheet'); closeCard(); hideSheet('#settingsSheet'); hideSheet('#contactPickerSheet'); gnAttachingId=null; }
 function openDrawer(){ $('#drawer').classList.add('show'); $('#drawerScrim').classList.add('show'); renderMasterList(); }
 function closeDrawer(){ $('#drawer').classList.remove('show'); $('#drawerScrim').classList.remove('show'); }
 
 /* ---------------- Refresh pipeline ---------------- */
 async function loadContacts(){ contacts = await db.contacts.toArray(); }
 async function loadAllNotes(){ allNotes = await db.notesLog.toArray(); }
+async function loadGeneralNotes(){ try{ generalNotesCache = await db.generalNotes.toArray(); }catch(e){ generalNotesCache=[]; } }
 function getNotesFor(id){ return allNotes.filter(n=>n.contactId===id).sort((a,b)=> new Date(b.date)-new Date(a.date)); }
 function latestNoteFor(id){ const e=getNotesFor(id); return e.length?e[0]:null; }
 function latestVisitDate(c){ const n=latestNoteFor(c.id); return n ? n.date : null; }
@@ -7161,19 +7423,20 @@ function inDateRange(dateISO, range){
   return true;
 }
 function updateBadges(){
-  const hs=contacts.filter(c=>!c.hubspotEntered).length;
+  const ro=contacts.filter(c=>c.reachOut).length;
   const od=contacts.filter(isOverdue).length;
-  const hb=$('#hubspotBadge'), rb=$('#recentBadge');
-  hb.textContent=hs>99?'99+':hs; hb.classList.toggle('show', hs>0);
-  rb.textContent=od>99?'99+':od; rb.classList.toggle('show', od>0);
+  const rb=$('#reachOutBadge'), nb=$('#recentBadge');
+  if(rb){ rb.textContent=ro>99?'99+':ro; rb.classList.toggle('show', ro>0); }
+  if(nb){ nb.textContent=od>99?'99+':od; nb.classList.toggle('show', od>0); }
 }
 async function refresh(){
   await loadContacts();
   await loadAllNotes();
+  await loadGeneralNotes();
   renderMarkers();
   updateBadges();
-  if(currentTab==='hubspot') renderHubspot();
-  if(currentTab==='recent') renderRecent();
+  if(currentTab==='reachout') renderReachOut();
+  if(currentTab==='recent'){ renderRecentFilterBar(); renderRecent(); }
   if($('#drawer').classList.contains('show')) renderMasterList();
 }
 
@@ -7233,37 +7496,104 @@ function wire(){
   // place banner — delegates to pick-first or normal place mode
   $('#pbGps').addEventListener('click',()=>{ if(moving.active) return; place.pickFirst ? pickFirstViaGps() : placeViaGps(); });
   $('#pbCancel').addEventListener('click',()=>{ if(moving.active){ exitMoveMode(); return; } place.pickFirst ? exitPickFirst() : exitPlaceMode(); });
-  // filter chips
-  $('#filterBar').addEventListener('click',e=>{
+  // filter chips (map)
+  $('#filterBar').addEventListener('click',async e=>{
     const chip=e.target.closest('.chip'); if(!chip) return;
-    if(chip.dataset.all){ activeFilters.clear(); }
+    if(chip.dataset.reachout){
+      filterReachOut=!filterReachOut;
+      renderFilterBar(); renderMarkers();
+      await saveRoFilters();
+      return;
+    }
+    if(chip.dataset.all){ activeFilters.clear(); filterReachOut=false; }
     else{ const k=chip.dataset.color; activeFilters.has(k)?activeFilters.delete(k):activeFilters.add(k); }
     renderFilterBar(); renderMarkers();
   });
-  // hubspot color filter chips
-  $('#hsFilterBar').addEventListener('click',async e=>{
+  // reach-out filter chips
+  $('#roFilterBar').addEventListener('click',async e=>{
     const chip=e.target.closest('.chip'); if(!chip) return;
-    if(chip.dataset.all){ hsFilters.clear(); }
-    else{ const k=chip.dataset.color; hsFilters.has(k)?hsFilters.delete(k):hsFilters.add(k); }
-    renderHsFilterBar();
-    await saveHsFilters();
-    renderHubspot();
+    if(chip.dataset.all){ roFilters.clear(); }
+    else{ const k=chip.dataset.color; roFilters.has(k)?roFilters.delete(k):roFilters.add(k); }
+    renderRoFilterBar();
+    await saveRoFilters();
+    renderReachOut();
   });
-  // notes tab color filter chips
+  // reach-out sort
+  $('#roSortSel').addEventListener('change',e=>{
+    reachOutSort=e.target.value; renderReachOut();
+  });
+  // reach-out bulk remove
+  $('#roBulkRemove').addEventListener('click',async ()=>{
+    if(!selectedReachOutIds.size) return;
+    const ids=[...selectedReachOutIds];
+    for(const id of ids){
+      await db.contacts.update(id,{reachOut:0});
+      const c=contacts.find(x=>x.id===id); if(c) c.reachOut=0;
+    }
+    selectedReachOutIds.clear();
+    updateBadges(); renderReachOut();
+    toast(`${ids.length} removed from Reach Out`);
+  });
+  // notes tab filter chips
   $('#recentFilterBar').addEventListener('click',async e=>{
     const chip=e.target.closest('.chip'); if(!chip) return;
-    if(chip.dataset.all){ recentFilters.clear(); }
+    if(chip.dataset.reachout){
+      filterReachOut=!filterReachOut;
+      renderRecentFilterBar();
+      await saveRoFilters();
+      renderRecent();
+      return;
+    }
+    if(chip.dataset.all){ recentFilters.clear(); filterReachOut=false; }
     else{ const k=chip.dataset.color; recentFilters.has(k)?recentFilters.delete(k):recentFilters.add(k); }
     renderRecentFilterBar();
     await saveRecentFilters();
     renderRecent();
   });
-  // hubspot date-range row
-  $('#hsRangeRow').addEventListener('click',e=>{
-    const b=e.target.closest('.range-btn'); if(!b) return;
-    hsRange=b.dataset.range;
-    $$('#hsRangeRow .range-btn').forEach(x=>x.classList.toggle('active', x===b));
-    renderHubspot();
+  // notes sub-tabs
+  $('#recentView').addEventListener('click',e=>{
+    const st=e.target.closest('.notes-subtab'); if(!st) return;
+    notesSubTab=st.dataset.subtab;
+    $$('.notes-subtab').forEach(b=>b.classList.toggle('active', b.dataset.subtab===notesSubTab));
+    $('#contactNotesPane').style.display = notesSubTab==='contact' ? '' : 'none';
+    $('#generalNotesPane').style.display  = notesSubTab==='general' ? '' : 'none';
+    if(notesSubTab==='general') renderGeneralNotes();
+  });
+  // general notes add btn
+  $('#gnAddBtn').addEventListener('click',()=>{ if(gnEditingId!=='new') openNewGeneralNote(); });
+  // general notes list events
+  $('#generalNotesList').addEventListener('input',e=>{
+    const ta=e.target; if(ta && ta.dataset.autogrow) autoGrow(ta);
+  });
+  $('#generalNotesList').addEventListener('click',async e=>{
+    const btn=e.target.closest('[data-gnact]'); if(!btn) return;
+    const act=btn.dataset.gnact;
+    if(act==='edit'){
+      gnEditingId=Number(btn.dataset.gnid); renderGeneralNotes();
+    } else if(act==='cancel' || act==='cancelnew'){
+      gnEditingId=null;
+      if(act==='cancelnew'){ const c=$('#gnNewCard'); if(c) c.remove(); }
+      else renderGeneralNotes();
+    } else if(act==='save'){
+      const id=Number(btn.dataset.gnid);
+      const ta=$('#gnEditText'), dt=$('#gnEditDate'); if(!ta) return;
+      await saveGeneralNoteEdit(id, ta.value, dt ? new Date(dt.value).toISOString() : new Date().toISOString());
+    } else if(act==='savenew'){
+      const ta=$('#gnNewText'), dt=$('#gnNewDate'); if(!ta) return;
+      await saveNewGeneralNote(ta.value, dt ? new Date(dt.value).toISOString() : new Date().toISOString());
+    } else if(act==='delete'){
+      await deleteGeneralNote(Number(btn.dataset.gnid));
+    } else if(act==='attach'){
+      openContactPicker(Number(btn.dataset.gnid));
+    }
+  });
+  // contact picker
+  $('#contactPickerClose').addEventListener('click',()=>{ hideSheet('#contactPickerSheet'); gnAttachingId=null; });
+  $('#contactPickerScrim').addEventListener('click',()=>{ hideSheet('#contactPickerSheet'); gnAttachingId=null; });
+  $('#cpSearch').addEventListener('input',e=>{ renderContactPicker(e.target.value); });
+  $('#cpList').addEventListener('click',async e=>{
+    const btn=e.target.closest('[data-act="cpattach"]'); if(!btn) return;
+    await attachGeneralNote(Number(btn.dataset.id));
   });
   // notes date-range row
   $('#recentRangeRow').addEventListener('click',e=>{
@@ -7333,7 +7663,7 @@ function wire(){
       if(!confirm('Remove this decision maker?')) return;
       await ccDeleteDm(Number(btn.dataset.dmIdx));
     }
-    else if(act==='togglehub'){ await cardSave({hubspotEntered:c.hubspotEntered?0:1}); renderCard(); }
+
     else if(act==='editfollow'){ cardEditingField='follow'; renderCard(); }
     else if(act==='clearfollow'){ await cardSave({followUpDate:null}); cardEditingField=null; renderCard(); toast('Follow-up removed'); }
     else if(act==='markfollowedup'){
@@ -7367,17 +7697,11 @@ function wire(){
     const btn=e.target.closest('[data-act]'); if(!btn) return;
     const id=Number(btn.dataset.id); const act=btn.dataset.act;
     const c=contacts.find(x=>x.id===id); if(!c) return;
-    if(act==='done'){
-      await db.contacts.update(id,{hubspotEntered:1}); c.hubspotEntered=1;
-      const row=btn.closest('.hs-row');
-      if(row){ row.style.maxHeight=row.offsetHeight+'px'; requestAnimationFrame(()=>row.classList.add('removing')); }
-      setTimeout(()=>{ updateBadges(); renderHubspot(); },300);
-      showUndo('Marked as entered', async ()=>{
-        await db.contacts.update(id,{hubspotEntered:0}); c.hubspotEntered=0;
-        updateBadges(); renderHubspot();
-        toast('Undone');
-      });
-    }else if(act==='hsview'){ openContactCard(id); }
+    if(act==='roselect'){
+      const cb=btn;
+      if(cb.checked) selectedReachOutIds.add(id); else selectedReachOutIds.delete(id);
+      updateRoBulkBar();
+    }else if(act==='roview'){ openContactCard(id); }
     else if(act==='edit'){ openContactCard(id); }
     else if(act==='view'){ focusContact(id); }
     else if(act==='addmap'){ enterPlaceMode(id); }
@@ -7463,7 +7787,7 @@ function applyColorEffects(){
   renderFilterBar(); renderMarkers();
   renderSwatches();
   if(currentTab==='recent'){ renderRecentFilterBar(); renderRecent(); }
-  if(currentTab==='hubspot'){ renderHsFilterBar(); renderHubspot(); }
+  if(currentTab==='reachout'){ renderRoFilterBar(); renderReachOut(); }
   if($('#drawer').classList.contains('show')) renderMasterList();
 }
 
