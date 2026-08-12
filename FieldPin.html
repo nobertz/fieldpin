@@ -271,16 +271,18 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
   z-index:50;opacity:0;pointer-events:none;transition:opacity .2s ease;
 }
 .scrim.show{opacity:1;pointer-events:auto;}
+/* Drawer opens below the top bar so the search field stays visible & bright while typing */
+#drawerScrim{top:calc(var(--top-h) + var(--safe-t));}
 
 #drawer{
-  position:fixed;top:0;bottom:0;left:0;z-index:60;
+  position:fixed;top:calc(var(--top-h) + var(--safe-t));bottom:0;left:0;z-index:60;
   width:min(86vw,372px);background:var(--surface);
   transform:translateX(-100%);transition:transform .24s cubic-bezier(.4,0,.2,1);
   display:flex;flex-direction:column;box-shadow:var(--shadow);
 }
 #drawer.show{transform:none;}
 .drawer-head{
-  padding:calc(16px + var(--safe-t)) 18px 14px;
+  padding:16px 18px 14px;
   border-bottom:1px solid var(--hair);
 }
 .drawer-head h2{margin:0;font-size:19px;font-weight:760;letter-spacing:-.02em;}
@@ -438,11 +440,11 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
   background:var(--bg);border-bottom:1px solid var(--hair);
 }
 #recentRangeRow{
-  position:sticky;top:46px;z-index:5;
+  position:sticky;top:0;z-index:5;
   background:var(--bg);padding-top:12px;
 }
 #recentFilterBar{
-  position:sticky;top:91px;z-index:4;
+  position:sticky;top:45px;z-index:4;
   background:var(--bg);border-bottom:1px solid var(--hair);
 }
 
@@ -496,20 +498,15 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
 .ro-name{font-size:15.5px;font-weight:650;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .ro-meta{font-size:11.5px;color:var(--muted);}
 .ro-preview{font-size:13px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-
-/* Notes sub-tabs */
-.notes-subtab-bar{
-  display:flex;gap:0;border-bottom:2px solid var(--hair-strong);
-  background:var(--surface);
-  position:sticky;top:0;z-index:7;
-  height:47px;box-sizing:border-box;
+.ro-pin-btn{
+  flex:0 0 auto;width:32px;height:32px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--surface-2);border:1px solid var(--hair-strong);
+  color:var(--accent);padding:0;
 }
-.notes-subtab{
-  flex:1;padding:13px 8px;font-size:14px;font-weight:700;color:var(--muted);
-  background:none;border:none;border-bottom:2px solid transparent;
-  margin-bottom:-2px;letter-spacing:-.01em;
-}
-.notes-subtab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.ro-pin-btn svg{width:17px;height:17px;}
+.ro-pin-btn.unpinned{color:var(--muted);}
+.ro-pin-btn:active{transform:scale(.9);background:var(--hair-strong);}
 
 /* General notes — collapsed cards */
 .gn-header{padding:12px 14px 6px;}
@@ -849,10 +846,6 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
   </section>
 
   <section id="recentView" class="view list-view" style="padding:0;">
-    <div class="notes-subtab-bar">
-      <button class="notes-subtab active" data-subtab="contact">Contact Notes</button>
-      <button class="notes-subtab" data-subtab="general">General Notes</button>
-    </div>
     <div id="contactNotesPane">
       <div class="range-row" id="recentRangeRow">
         <button class="range-btn" data-range="today">Today</button>
@@ -901,10 +894,14 @@ input,textarea,select{font-family:inherit;font-size:16px;color:var(--ink);}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s7-6.6 7-12a7 7 0 1 0-14 0c0 5.4 7 12 7 12z"/><circle cx="12" cy="9" r="2.4"/></svg>
     <span>Map</span>
   </button>
-  <button class="nav-btn" data-tab="recent">
+  <button class="nav-btn" data-tab="contacts">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+    <span>Contacts</span>
+    <span class="nav-badge" id="contactsBadge">0</span>
+  </button>
+  <button class="nav-btn" data-tab="notes">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
     <span>Notes</span>
-    <span class="nav-badge" id="recentBadge">0</span>
   </button>
 </nav>
 
@@ -6351,7 +6348,6 @@ let recentFilters = new Set();      // empty = ALL (Notes tab color filter)
 let filterReachOut = false;         // show only reach-out contacts on map/notes
 let reachOutSort = 'newest';        // 'newest' | 'oldest' | 'color'
 let selectedReachOutIds = new Set(); // bulk-remove selection
-let notesSubTab = 'contact';        // 'contact' | 'general'
 let generalNotesCache = [];         // in-memory cache of generalNotes table
 let recentRange = 'all';            // 'all' | 'today' | 'week' | 'month' (Notes tab)
 let currentTab = 'map';
@@ -6629,11 +6625,17 @@ function switchTab(tab){
   closeFabMenu();
   $$('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
   $('#reachOutView').classList.toggle('active', tab==='reachout');
-  $('#recentView').classList.toggle('active', tab==='recent');
+  const inNotes = (tab==='contacts' || tab==='notes');
+  $('#recentView').classList.toggle('active', inNotes);
+  if(inNotes){
+    $('#contactNotesPane').style.display = tab==='contacts' ? '' : 'none';
+    $('#generalNotesPane').style.display = tab==='notes' ? '' : 'none';
+  }
   $('#mapOverlays').style.display = tab==='map' ? '' : 'none';
   $('#recenterBtn').style.display = tab==='map' ? '' : 'none';
   if(tab==='reachout'){ renderRoFilterBar(); renderReachOut(); }
-  if(tab==='recent'){ renderRecentFilterBar(); renderRecent(); }
+  if(tab==='contacts'){ renderRecentFilterBar(); renderRecent(); }
+  if(tab==='notes'){ renderGeneralNotes(); }
   if(tab==='map' && map) google.maps.event.trigger(map,'resize');
 }
 
@@ -6659,6 +6661,7 @@ function roRowHTML(c){
   const visitStr = latest ? fmtDateTime(latest.date) : 'No visits yet';
   const preview = latest ? truncate(latest.text, 60) : '';
   const checked = selectedReachOutIds.has(c.id);
+  const pinned = isPinned(c);
   return `<div class="ro-row" data-id="${c.id}">
     <input type="checkbox" class="ro-check" data-act="roselect" data-id="${c.id}" ${checked?'checked':''}>
     <button class="ro-open" data-act="roview" data-id="${c.id}">
@@ -6669,6 +6672,7 @@ function roRowHTML(c){
         ${preview ? `<span class="ro-preview">${esc(preview)}</span>` : ''}
       </div>
     </button>
+    <button class="ro-pin-btn${pinned?'':' unpinned'}" data-act="cardpin" data-id="${c.id}" aria-label="${pinned?'Show on map':'Add to map'}" title="${pinned?'Show on map':'Add to map'}">${ICON_PIN}</button>
   </div>`;
 }
 function renderRoFilterBar(){
@@ -6802,7 +6806,7 @@ async function closeGeneralNoteSheet(opts){
     await db.generalNotes.update(id, {title, text, date:dateISO});
   }
   await loadGeneralNotes();
-  if(currentTab==='recent' && notesSubTab==='general') renderGeneralNotes();
+  if(currentTab==='notes') renderGeneralNotes();
 }
 function openNewGeneralNote(){
   openGeneralNoteSheet('new');
@@ -6850,7 +6854,7 @@ async function attachGeneralNote(contactId){
   await closeGeneralNoteSheet({discard:true});
   renderGeneralNotes();
   renderMarkers(); updateBadges();
-  if(currentTab==='recent') renderRecent();
+  if(currentTab==='contacts') renderRecent();
   toast('Note attached to contact');
 }
 
@@ -6924,6 +6928,8 @@ function renderMasterList(){
   const matched = contacts.filter(c=>{
     if(!term) return true;
     if((c.businessName||'').toLowerCase().includes(term)) return true;
+    const dms = Array.isArray(c.decisionMakers) ? c.decisionMakers : [];
+    if(dms.some(dm=>(dm.name||'').toLowerCase().includes(term) || (dm.title||'').toLowerCase().includes(term))) return true;
     return allNotes.some(n=>n.contactId===c.id && (n.text||'').toLowerCase().includes(term));
   }).sort((a,b)=>(a.businessName||'').localeCompare(b.businessName||''));
   $('#drawerCount').textContent = term
@@ -7076,7 +7082,7 @@ async function cardSave(patch){
   const c = contacts.find(x=>x.id===cardContactId);
   if(c) Object.assign(c, patch);
   renderMarkers(); updateBadges();
-  if(currentTab==='recent') renderRecent();
+  if(currentTab==='contacts') renderRecent();
   if(currentTab==='reachout') renderReachOut();
   if($('#drawer').classList.contains('show')) renderMasterList();
 }
@@ -7084,7 +7090,7 @@ async function refreshNotesGlobal(){
   await loadAllNotes();
   cardNotes = getNotesFor(cardContactId);
   renderMarkers(); updateBadges();
-  if(currentTab==='recent') renderRecent();
+  if(currentTab==='contacts') renderRecent();
   if(currentTab==='reachout') renderReachOut();
   if($('#drawer').classList.contains('show')) renderMasterList();
 }
@@ -7371,26 +7377,38 @@ function download(filename, text, type){
 }
 function csvCell(v){ v=String(v==null?'':v); return /[",\n\r]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }
 function exportCSV(){
-  const headers=['Business Name','Status','Decision Maker(s)','Latest Note','Latest Visit','Total Notes','Follow-up Date','On Reach Out List','Latitude','Longitude','Created'];
-  const rows=contacts.map(c=>{
-    const entries=getNotesFor(c.id), latest=entries[0];
+  // One row per note so the full visit history is preserved (not just the latest).
+  // Contacts with no notes still get a single row with blank note fields.
+  const headers=['Business Name','Status','Decision Maker(s)','Note #','Note','Note Date','Follow-up Date','On Reach Out List','Latitude','Longitude','Created'];
+  const rows=[];
+  contacts.forEach(c=>{
     const dms = Array.isArray(c.decisionMakers) ? c.decisionMakers : [];
     const dmText = dms.map(dm=> dm.title ? `${dm.name} (${dm.title})` : dm.name).join('; ');
-    return [
+    // oldest-first so each contact's rows read as a chronological log
+    const entries = getNotesFor(c.id).slice().reverse();
+    const base = (noteNum, noteText, noteDate) => [
       c.businessName||'', colorByKey(c.color).label, dmText,
-      latest?latest.text:'', latest?new Date(latest.date).toLocaleString():'',
-      entries.length,
+      noteNum, noteText, noteDate,
       c.followUpDate||'', c.reachOut?'Yes':'No',
       c.latitude==null?'':c.latitude, c.longitude==null?'':c.longitude,
       c.createdAt?new Date(c.createdAt).toLocaleString():''
     ];
+    if(entries.length){
+      entries.forEach((n,i)=> rows.push(base(i+1, n.text||'', n.date?new Date(n.date).toLocaleString():'')));
+    } else {
+      rows.push(base('', '', ''));
+    }
   });
   const csv=[headers,...rows].map(r=>r.map(csvCell).join(',')).join('\r\n');
   download(`fieldpin-${todayYMD()}.csv`, csv, 'text/csv;charset=utf-8;');
   toast('CSV exported');
 }
-function exportJSON(){
-  const payload={ app:'FieldPin', schema:4, exportedAt:new Date().toISOString(), settings, contacts, notes:allNotes, generalNotes:generalNotesCache };
+async function exportJSON(){
+  // Read notes straight from the DB so the backup captures everything, even if a cache is stale.
+  let allN=allNotes, gn=generalNotesCache;
+  try{ allN = await db.notesLog.toArray(); }catch(e){}
+  try{ gn = await db.generalNotes.toArray(); }catch(e){}
+  const payload={ app:'FieldPin', schema:4, exportedAt:new Date().toISOString(), settings, contacts, notes:allN, generalNotes:gn };
   download(`fieldpin-backup-${todayYMD()}.json`, JSON.stringify(payload,null,2), 'application/json');
   toast('Backup created');
 }
@@ -7566,7 +7584,7 @@ function inDateRange(dateISO, range){
 function updateBadges(){
   const ro=contacts.filter(c=>c.reachOut).length;
   const od=contacts.filter(isOverdue).length;
-  const rb=$('#reachOutBadge'), nb=$('#recentBadge');
+  const rb=$('#reachOutBadge'), nb=$('#contactsBadge');
   if(rb){ rb.textContent=ro>99?'99+':ro; rb.classList.toggle('show', ro>0); }
   if(nb){ nb.textContent=od>99?'99+':od; nb.classList.toggle('show', od>0); }
 }
@@ -7577,7 +7595,8 @@ async function refresh(){
   renderMarkers();
   updateBadges();
   if(currentTab==='reachout') renderReachOut();
-  if(currentTab==='recent'){ renderRecentFilterBar(); renderRecent(); }
+  if(currentTab==='contacts'){ renderRecentFilterBar(); renderRecent(); }
+  if(currentTab==='notes') renderGeneralNotes();
   if($('#drawer').classList.contains('show')) renderMasterList();
 }
 
@@ -7692,21 +7711,7 @@ function wire(){
     await saveRecentFilters();
     renderRecent();
   });
-  // notes sub-tabs
-  function setNotesSubTab(which){
-    if(which===notesSubTab) return;
-    notesSubTab=which;
-    $$('.notes-subtab').forEach(b=>b.classList.toggle('active', b.dataset.subtab===notesSubTab));
-    $('#contactNotesPane').style.display = notesSubTab==='contact' ? '' : 'none';
-    $('#generalNotesPane').style.display  = notesSubTab==='general' ? '' : 'none';
-    if(notesSubTab==='general') renderGeneralNotes();
-    else renderRecent();
-  }
-  $('#recentView').addEventListener('click',e=>{
-    const st=e.target.closest('.notes-subtab'); if(!st) return;
-    setNotesSubTab(st.dataset.subtab);
-  });
-  // horizontal swipe between Contact Notes <-> General Notes
+  // Content swipe between Contacts <-> Notes (both are list views, safe to swipe sideways)
   (function(){
     const view=$('#recentView'); if(!view) return;
     let sx=0, sy=0, tracking=false, decided=false, horizontal=false;
@@ -7732,10 +7737,31 @@ function wire(){
       if(!tracking || !decided || !horizontal){ tracking=false; return; }
       const dx=(e.changedTouches[0].clientX)-sx;
       const THRESH=55;
-      if(dx<=-THRESH && notesSubTab==='contact') setNotesSubTab('general');
-      else if(dx>=THRESH && notesSubTab==='general') setNotesSubTab('contact');
+      if(dx<=-THRESH && currentTab==='contacts') switchTab('notes');
+      else if(dx>=THRESH && currentTab==='notes') switchTab('contacts');
       tracking=false;
     },{passive:true});
+  })();
+  // Swipe across the bottom nav bar to step through all tabs.
+  // Living on the nav strip means it never clashes with the map's own panning.
+  (function(){
+    const nav=$('#bottomNav'); if(!nav) return;
+    const ORDER=['reachout','map','contacts','notes'];
+    let sx=0, sy=0, tracking=false;
+    nav.addEventListener('touchstart',e=>{
+      if(e.touches.length!==1){ tracking=false; return; }
+      sx=e.touches[0].clientX; sy=e.touches[0].clientY; tracking=true;
+    },{passive:true});
+    nav.addEventListener('touchend',e=>{
+      if(!tracking) return;
+      tracking=false;
+      const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+      const THRESH=45;
+      if(Math.abs(dx)<THRESH || Math.abs(dx)<=Math.abs(dy)) return; // let taps & vertical through
+      const i=ORDER.indexOf(currentTab); if(i<0) return;
+      const ni = dx<0 ? Math.min(ORDER.length-1, i+1) : Math.max(0, i-1);
+      if(ni!==i){ e.preventDefault(); switchTab(ORDER[ni]); } // preventDefault suppresses the ghost tap
+    },{passive:false});
   })();
   // general notes add btn
   $('#gnAddBtn').addEventListener('click',()=>{ openNewGeneralNote(); });
@@ -7958,13 +7984,8 @@ function wire(){
 }
 /* --- FAB menu helpers --- */
 function startQuickNote(){
-  // Jump to Notes → General Notes and open a fresh note editor sheet.
-  switchTab('recent');
-  notesSubTab='general';
-  $$('.notes-subtab').forEach(b=>b.classList.toggle('active', b.dataset.subtab==='general'));
-  $('#contactNotesPane').style.display='none';
-  $('#generalNotesPane').style.display='';
-  renderGeneralNotes();
+  // Jump to the Notes tab and open a fresh note editor sheet.
+  switchTab('notes');
   openNewGeneralNote();
 }
 function openFabMenu(){ $('#fabMenu').classList.add('show'); $('#fab').classList.add('open'); $('#fabScrim').classList.add('show'); }
@@ -8006,7 +8027,7 @@ function pickFirstViaGps(){
 function applyColorEffects(){
   renderFilterBar(); renderMarkers();
   renderSwatches();
-  if(currentTab==='recent'){ renderRecentFilterBar(); renderRecent(); }
+  if(currentTab==='contacts'){ renderRecentFilterBar(); renderRecent(); }
   if(currentTab==='reachout'){ renderRoFilterBar(); renderReachOut(); }
   if($('#drawer').classList.contains('show')) renderMasterList();
 }
